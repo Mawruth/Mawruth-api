@@ -16,6 +16,7 @@ async function bootstrap() {
 
   // Swagger Config
   const swaggerConfig = new DocumentBuilder()
+    .addBearerAuth()
     .setTitle('Mawruth API')
     .setVersion('1.0')
     .build();
