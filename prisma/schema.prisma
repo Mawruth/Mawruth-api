@@ -30,3 +30,27 @@ model Museums {
 
   @@map("museums")
 }
+
+model Users {
+  id Int @id @default(autoincrement())
+  name String
+  email String @unique
+  username String @unique
+  password String 
+  image String?
+  type UserType @default(USER)
+  otp String?
+  otp_verified Boolean @default(false)
+  otp_created_at DateTime?
+  otp_expire_at DateTime?
+  active Boolean @default(false)
+
+  @@map("users")
+  @@index([otp,otp_expire_at])
+}
+
+enum UserType {
+  USER
+  SUPPER_ADMIN
+  MUSEUMS_ADMIN
+}
