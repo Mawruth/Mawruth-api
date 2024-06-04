@@ -17,7 +17,9 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const token = request.headers.authorization?.replace('Bearer ', '');
     if (!token) {
-      throw new UnauthorizedException("Token doesn't exist");
+      throw new UnauthorizedException(
+        "Token doesn't exist, please login again",
+      );
     }
     try {
       const payload = await this.jwtService.verifyAsync(token);
@@ -41,6 +43,7 @@ export class AuthGuard implements CanActivate {
         name: user.name,
         email: user.email,
         image: user.image,
+        type: user.type,
       };
     } catch (error) {
       throw new UnauthorizedException('Invalid token');
