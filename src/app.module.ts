@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -14,13 +14,17 @@ import appConfig from './config/app.config';
 import { JwtModule } from '@nestjs/jwt';
 import jwtConfig from './config/jwt.config';
 import emailConfig from './config/email.config';
+import awsConfig from './config/aws.config';
+import { S3Service } from './services/s3.service';
+import { AuthUtils } from './utils/auth.utils';
+import { EmailService } from './services/email.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
-      load: [appConfig, jwtConfig, emailConfig],
+      load: [appConfig, jwtConfig, emailConfig, awsConfig],
     }),
     MuseumsModule,
     PrismaModule,
@@ -40,6 +44,14 @@ import emailConfig from './config/email.config';
     }),
   ],
   controllers: [AppController, CategoriesController],
-  providers: [AppService, CategoriesService, UsersService],
+  providers: [
+    AppService,
+    CategoriesService,
+    UsersService,
+    S3Service,
+    AuthUtils,
+    EmailService,
+    Logger,
+  ],
 })
 export class AppModule {}
