@@ -15,31 +15,47 @@ export class MuseumsService {
 		search: string,
 	): Promise<Museums[]> {
 		let res: Promise<Museums[]>
-		if (page === 0) {
+		if (!page) {
 			page = 1;
 		}
-		if (limit === 0) {
+		if (!limit) {
 			limit = 10;
 		}
-		try {
-			let filter = {}
-			if (search) {
-				filter = {
-					name: {
-						contains: search,
+
+		let filter = {};
+		if (search) {
+			filter = {
+				OR: [
+					{
+						name: {
+							contains: search,
+							mode: 'insensitive',
+						},
 					},
-				}
+					{
+						city: {
+							contains: search,
+							mode: 'insensitive',
+						},
+					},
+					{
+						street: {
+							contains: search,
+							mode: 'insensitive',
+						},
+					},
+				],
 			}
-			res = this.prismaService.museums.findMany(
-				{
-					skip: (page - 1) * limit,
-					take: limit,
-					where: filter,
-					orderBy: {
-						id: 'desc',
-					},
-				}
-			);
+		}
+		try {
+			res = this.prismaService.museums.findMany({
+				skip: (page - 1) * limit,
+				take: limit,
+				where: filter,
+				orderBy: {
+					id: 'desc',
+				},
+			});
 		} catch (error) {
 			handlePrismaError(error);
 		}

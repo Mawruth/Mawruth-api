@@ -5,8 +5,9 @@ import { UpdatePieceDto } from './dto/update-piece.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { UserTypeGuard } from 'src/guards/user-type.guard';
 import { UserTypes } from 'src/decorators/userTypes.decorato';
-import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
+@ApiTags("pieces")
 @Controller('pieces')
 export class PiecesController {
   constructor(private readonly pieces: PiecesService) { }
@@ -52,9 +53,9 @@ export class PiecesController {
   @ApiBearerAuth()
   @Get()
   async getAllPieces(
-    @Query() page: number,
-    @Query() limit: number,
-    @Query() search: string,
+    @Query("page") page: number,
+    @Query("limit") limit: number,
+    @Query("search") search: string,
   ) {
     return this.pieces.getAllPieces(page, limit, search);
   }

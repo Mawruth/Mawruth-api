@@ -53,9 +53,9 @@ export class MuseumsController {
   })
   @ApiBearerAuth()
   async getAll(
-    @Query() page: number,
-    @Query() limit: number,
-    @Query() search: string,
+    @Query("page") page: number,
+    @Query("limit") limit: number,
+    @Query("search") search: string,
   ) {
     return this.service.getAllMuseums(page, limit, search);
   }

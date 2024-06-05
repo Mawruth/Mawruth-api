@@ -23,18 +23,19 @@ export class PiecesService {
 
   async getAllPieces(page: number, limit: number, search: string): Promise<Pieces[]> {
     let res: Promise<Pieces[]>
-    if (page === 0) {
+    if (!page) {
       page = 1;
     }
-    if (limit === 0) {
+    if (!limit) {
       limit = 10;
     }
+    let filter = {}
     try {
-      let filter = {}
       if (search) {
         filter = {
           name: {
             contains: search,
+            mode: 'insensitive',
           },
         }
       }
