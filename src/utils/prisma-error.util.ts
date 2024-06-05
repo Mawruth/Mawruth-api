@@ -6,7 +6,7 @@ export function handlePrismaError(error: Prisma.PrismaClientKnownRequestError) {
     switch (error.code) {
       case 'P2002':
         throw new HttpException(
-          `Unique constraint failed on the field: ${error.meta?.target}`,
+          `The ${error.meta?.target} is already existing and it must be unique`,
           HttpStatus.CONFLICT,
         );
       case 'P2003':
@@ -15,7 +15,7 @@ export function handlePrismaError(error: Prisma.PrismaClientKnownRequestError) {
           HttpStatus.BAD_REQUEST,
         );
       case 'P2025':
-        throw new HttpException('Record not found', HttpStatus.NOT_FOUND);
+        throw new HttpException('Item not found', HttpStatus.NOT_FOUND);
       default:
         throw new HttpException(
           error.message,
