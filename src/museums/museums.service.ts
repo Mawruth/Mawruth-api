@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Museums } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { EditMuseumDto } from './dto/edit-museum.dto';
+import { UpdateMuseumDto } from './dto/update-museum.dto';
 import { handlePrismaError } from 'src/utils/prisma-error.util';
 import { CreateMuseumDto } from './dto/create-museum.dto';
 
@@ -15,17 +15,26 @@ export class MuseumsService {
 		search: string,
 	): Promise<Museums[]> {
 		let res: Promise<Museums[]>
+		if (page === 0) {
+			page = 1;
+		}
+		if (limit === 0) {
+			limit = 10;
+		}
 		try {
+			let filter = {}
+			if (search) {
+				filter = {
+					name: {
+						contains: search,
+					},
+				}
+			}
 			res = this.prismaService.museums.findMany(
 				{
 					skip: (page - 1) * limit,
 					take: limit,
-					where: {
-						name: {
-							contains: search,
-							mode: 'insensitive',
-						},
-					},
+					where: filter,
 					orderBy: {
 						id: 'desc',
 					},
@@ -63,7 +72,7 @@ export class MuseumsService {
 		return res;
 	}
 
-	async editMuseum(id: number, data: EditMuseumDto): Promise<Museums> {
+	async editMuseum(id: number, data: UpdateMuseumDto): Promise<Museums> {
 		let res: Promise<Museums>
 		try {
 			res = this.prismaService.museums.update({
