@@ -41,8 +41,7 @@ model Pieces {
   sectionId     Int
   museumId      Int
   arPath        String?
-  Museums       Museums? @relation(fields: [museumsId], references: [id])
-  museumsId     Int
+  Museums       Museums? @relation(fields: [museumId], references: [id])
 
   @@map("pieces")
 }
