@@ -19,8 +19,8 @@ export class AuthService {
     private readonly emailService: EmailService,
   ) {}
 
-  async signup(userDate: UserSignupDto) {
-    const { name, username, email, password } = userDate;
+  async signup(userData: UserSignupDto) {
+    const { name, username, email, password } = userData;
     const user = await this.prisma.users.findMany({
       where: {
         OR: [{ email }, { username }],
