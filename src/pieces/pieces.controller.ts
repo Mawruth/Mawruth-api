@@ -1,32 +1,31 @@
-import { Body, Controller, Post, Get, Delete, UseGuards, Query, Param, Patch } from '@nestjs/common';
-import { CreateMuseumDto } from './dto/create-museum.dto';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { MuseumsService } from './museums.service';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, Put } from '@nestjs/common';
+import { PiecesService } from './pieces.service';
+import { CreatePieceDto } from './dto/create-piece.dto';
+import { UpdatePieceDto } from './dto/update-piece.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
-import { UpdateMuseumDto } from './dto/update-museum.dto';
 import { UserTypeGuard } from 'src/guards/user-type.guard';
 import { UserTypes } from 'src/decorators/userTypes.decorato';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
-@ApiTags('museums')
-@Controller('museums')
-export class MuseumsController {
-  constructor(private readonly service: MuseumsService) { }
+@ApiTags("pieces")
+@Controller('pieces')
+export class PiecesController {
+  constructor(private readonly pieces: PiecesService) { }
 
   @UseGuards(AuthGuard, UserTypeGuard)
   @UserTypes("SUPPER_ADMIN")
-  @Post()
   @ApiOperation({
-    summary: 'Create new museum',
+    summary: 'Create new piece',
   })
   @ApiBearerAuth()
-  async create(@Body() createMuseumDto: CreateMuseumDto) {
-    return this.service.createMuseum(createMuseumDto);
+  @Post()
+  create(@Body() createPieceDto: CreatePieceDto) {
+    return this.pieces.createPiece(createPieceDto);
   }
 
   @UseGuards(AuthGuard)
-  @Get()
   @ApiOperation({
-    summary: 'Get all museums',
+    summary: 'Get all pieces',
     parameters: [
       {
         name: 'page',
@@ -52,23 +51,24 @@ export class MuseumsController {
     ]
   })
   @ApiBearerAuth()
-  async getAll(
+  @Get()
+  async getAllPieces(
     @Query("page") page: number,
     @Query("limit") limit: number,
     @Query("search") search: string,
   ) {
-    return this.service.getAllMuseums(page, limit, search);
+    return this.pieces.getAllPieces(page, limit, search);
   }
 
   @UseGuards(AuthGuard)
   @Get(':id')
   @ApiOperation({
-    summary: 'Get museum by id',
+    summary: 'Get piece by id',
     parameters: [
       {
         name: 'id',
         in: 'path',
-        description: 'Museum id',
+        description: 'Piece id',
         required: true,
         schema: { type: 'number' }
       },
@@ -76,49 +76,49 @@ export class MuseumsController {
   })
   @ApiBearerAuth()
   async getById(@Param('id') id: number) {
-    return this.service.getMuseumById(id);
+    return this.pieces.getPieceById(id);
   }
 
   @UseGuards(AuthGuard, UserTypeGuard)
   @UserTypes("SUPPER_ADMIN")
   @Patch(':id')
   @ApiOperation({
-    summary: 'Edit museum by id',
+    summary: 'Edit piece by id',
     parameters: [
       {
         name: 'id',
         in: 'path',
-        description: 'Museum id',
+        description: 'Piece id',
         required: true,
         schema: { type: 'number' }
       },
     ]
   })
   @ApiBearerAuth()
-  async editMuseum(
+  async editPiece(
     @Param('id') id: number,
-    @Body() editMuseumDto: UpdateMuseumDto,
+    @Body() editPieceDto: UpdatePieceDto,
   ) {
-    return this.service.editMuseum(id, editMuseumDto);
+    return this.pieces.editPiece(id, editPieceDto);
   }
 
   @UseGuards(AuthGuard, UserTypeGuard)
   @UserTypes("SUPPER_ADMIN")
   @Delete(':id')
   @ApiOperation({
-    summary: 'Delete museum by id',
+    summary: 'Delete piece by id',
     parameters: [
       {
         name: 'id',
         in: 'path',
-        description: 'Museum id',
+        description: 'Piece id',
         required: true,
         schema: { type: 'number' }
       },
     ]
   })
   @ApiBearerAuth()
-  async deleteMuseum(@Param('id') id: number) {
-    return this.service.deleteMuseum(id);
+  async deletePiece(@Param('id') id: number) {
+    return this.pieces.deletePiece(id);
   }
 }

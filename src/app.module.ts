@@ -18,6 +18,7 @@ import awsConfig from './config/aws.config';
 import { S3Service } from './services/s3.service';
 import { AuthUtils } from './utils/auth.utils';
 import { EmailService } from './services/email.service';
+import { PiecesModule } from './pieces/pieces.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { EmailService } from './services/email.service';
       inject: [ConfigService],
       global: true,
     }),
+    PiecesModule,
   ],
   controllers: [AppController, CategoriesController],
   providers: [
