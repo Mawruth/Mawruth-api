@@ -22,31 +22,46 @@ model Categories {
 }
 
 model Museums {
-  id          Int    @id @default(autoincrement())
-  name        String @unique
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
   description String
   city        String
   street      String
+  pieces      Pieces[]
 
   @@map("museums")
 }
 
-model Users {
-  id Int @id @default(autoincrement())
-  name String
-  email String @unique
-  username String @unique
-  password String 
-  image String?
-  type UserType @default(USER)
-  otp String?
-  otp_verified Boolean @default(false)
-  otp_created_at DateTime?
-  otp_expire_at DateTime?
-  active Boolean @default(false)
+model Pieces {
+  id            Int      @id @default(autoincrement())
+  name          String
+  description   String?
+  isMasterpiece Boolean
+  age           String
+  sectionId     Int
+  museumId      Int
+  arPath        String?
+  Museums       Museums? @relation(fields: [museumId], references: [id])
 
+  @@map("pieces")
+}
+
+model Users {
+  id             Int       @id @default(autoincrement())
+  name           String
+  email          String    @unique
+  username       String    @unique
+  password       String
+  image          String?
+  type           UserType  @default(USER)
+  otp            String?
+  otp_verified   Boolean   @default(false)
+  otp_created_at DateTime?
+  otp_expire_at  DateTime?
+  active         Boolean   @default(false)
+
+  @@index([otp, otp_expire_at])
   @@map("users")
-  @@index([otp,otp_expire_at])
 }
 
 enum UserType {
