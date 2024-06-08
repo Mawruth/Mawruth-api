@@ -1,0 +1,37 @@
+name: Deploy and Build/Run App on Remote Server
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Copy files via SCP
+      run: |
+        scp -r -o StrictHostKeyChecking=no ./ azureuser@${{ secrets.REMOTE_SERVER_IP }}:/mawruth
+
+  build-and-run:
+    needs: deploy
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Execute build and run commands
+      run: |
+        ssh -o StrictHostKeyChecking=no azureuser@${{ secrets.REMOTE_SERVER_IP }} 'cd /mawruth && make build && make run-bg'
