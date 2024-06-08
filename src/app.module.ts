@@ -19,6 +19,7 @@ import { S3Service } from './services/s3.service';
 import { AuthUtils } from './utils/auth.utils';
 import { EmailService } from './services/email.service';
 import { PiecesModule } from './pieces/pieces.module';
+import { MuseumReviewsModule } from './museum-reviews/museum-reviews.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { PiecesModule } from './pieces/pieces.module';
       global: true,
     }),
     PiecesModule,
+    MuseumReviewsModule,
   ],
   controllers: [AppController, CategoriesController],
   providers: [
@@ -56,4 +58,4 @@ import { PiecesModule } from './pieces/pieces.module';
     Logger,
   ],
 })
-export class AppModule {}
+export class AppModule { }
