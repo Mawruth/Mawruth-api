@@ -1,19 +1,31 @@
-import { Body, Controller, Post, Get, Delete, UseGuards, Query, Param, Patch } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Get,
+  Delete,
+  UseGuards,
+  Query,
+  Param,
+  Patch,
+} from '@nestjs/common';
 import { CreateMuseumDto } from './dto/create-museum.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { MuseumsService } from './museums.service';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { UpdateMuseumDto } from './dto/update-museum.dto';
 import { UserTypeGuard } from 'src/guards/user-type.guard';
-import { UserTypes } from 'src/decorators/userTypes.decorato';
+import { UserTypes } from 'src/decorators/userTypes.decorator';
+import { FindMuseumQueryDto } from './dto/find-museum-query.dto';
+import { MuseumIdDto } from './dto/museum-id.dto';
 
 @ApiTags('museums')
 @Controller('museums')
 export class MuseumsController {
-  constructor(private readonly service: MuseumsService) { }
+  constructor(private readonly service: MuseumsService) {}
 
   @UseGuards(AuthGuard, UserTypeGuard)
-  @UserTypes("SUPPER_ADMIN")
+  @UserTypes('SUPPER_ADMIN')
   @Post()
   @ApiOperation({
     summary: 'Create new museum',
@@ -23,102 +35,45 @@ export class MuseumsController {
     return this.service.createMuseum(createMuseumDto);
   }
 
-  @UseGuards(AuthGuard)
   @Get()
   @ApiOperation({
     summary: 'Get all museums',
-    parameters: [
-      {
-        name: 'page',
-        in: 'query',
-        description: 'Page number',
-        required: false,
-        schema: { type: 'number' }
-      },
-      {
-        name: 'limit',
-        in: 'query',
-        description: 'Limit number',
-        required: false,
-        schema: { type: 'number' }
-      },
-      {
-        name: 'search',
-        in: 'query',
-        description: 'Search by name',
-        required: false,
-        schema: { type: 'string' }
-      },
-    ]
   })
-  @ApiBearerAuth()
-  async getAll(
-    @Query("page") page: number,
-    @Query("limit") limit: number,
-    @Query("search") search: string,
-  ) {
-    return this.service.getAllMuseums(page, limit, search);
+  async getAll(@Query() query: FindMuseumQueryDto) {
+    return this.service.getAllMuseums(query);
   }
 
-  @UseGuards(AuthGuard)
   @Get(':id')
   @ApiOperation({
     summary: 'Get museum by id',
-    parameters: [
-      {
-        name: 'id',
-        in: 'path',
-        description: 'Museum id',
-        required: true,
-        schema: { type: 'number' }
-      },
-    ]
   })
-  @ApiBearerAuth()
-  async getById(@Param('id') id: number) {
-    return this.service.getMuseumById(id);
+  async getById(@Param() museumId: MuseumIdDto) {
+    console.log(museumId.id);
+    return await this.service.getMuseumById(museumId.id);
   }
 
   @UseGuards(AuthGuard, UserTypeGuard)
-  @UserTypes("SUPPER_ADMIN")
+  @UserTypes('SUPPER_ADMIN')
   @Patch(':id')
   @ApiOperation({
     summary: 'Edit museum by id',
-    parameters: [
-      {
-        name: 'id',
-        in: 'path',
-        description: 'Museum id',
-        required: true,
-        schema: { type: 'number' }
-      },
-    ]
   })
   @ApiBearerAuth()
   async editMuseum(
-    @Param('id') id: number,
+    @Param() museumId: MuseumIdDto,
     @Body() editMuseumDto: UpdateMuseumDto,
   ) {
-    return this.service.editMuseum(id, editMuseumDto);
+    return this.service.editMuseum(museumId.id, editMuseumDto);
   }
 
   @UseGuards(AuthGuard, UserTypeGuard)
-  @UserTypes("SUPPER_ADMIN")
+  @UserTypes('SUPPER_ADMIN')
   @Delete(':id')
   @ApiOperation({
     summary: 'Delete museum by id',
-    parameters: [
-      {
-        name: 'id',
-        in: 'path',
-        description: 'Museum id',
-        required: true,
-        schema: { type: 'number' }
-      },
-    ]
   })
   @ApiBearerAuth()
-  async deleteMuseum(@Param('id') id: number) {
-    return this.service.deleteMuseum(id);
+  async deleteMuseum(@Param() museumId: MuseumIdDto) {
+    return this.service.deleteMuseum(museumId.id);
   }
 }

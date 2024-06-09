@@ -1,19 +1,30 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, Put } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+  Put,
+} from '@nestjs/common';
 import { PiecesService } from './pieces.service';
 import { CreatePieceDto } from './dto/create-piece.dto';
 import { UpdatePieceDto } from './dto/update-piece.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { UserTypeGuard } from 'src/guards/user-type.guard';
-import { UserTypes } from 'src/decorators/userTypes.decorato';
+import { UserTypes } from 'src/decorators/userTypes.decorator';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
-@ApiTags("pieces")
+@ApiTags('pieces')
 @Controller('pieces')
 export class PiecesController {
-  constructor(private readonly pieces: PiecesService) { }
+  constructor(private readonly pieces: PiecesService) {}
 
   @UseGuards(AuthGuard, UserTypeGuard)
-  @UserTypes("SUPPER_ADMIN")
+  @UserTypes('SUPPER_ADMIN')
   @ApiOperation({
     summary: 'Create new piece',
   })
@@ -32,30 +43,30 @@ export class PiecesController {
         in: 'query',
         description: 'Page number',
         required: false,
-        schema: { type: 'number' }
+        schema: { type: 'number' },
       },
       {
         name: 'limit',
         in: 'query',
         description: 'Limit number',
         required: false,
-        schema: { type: 'number' }
+        schema: { type: 'number' },
       },
       {
         name: 'search',
         in: 'query',
         description: 'Search by name',
         required: false,
-        schema: { type: 'string' }
+        schema: { type: 'string' },
       },
-    ]
+    ],
   })
   @ApiBearerAuth()
   @Get()
   async getAllPieces(
-    @Query("page") page: number,
-    @Query("limit") limit: number,
-    @Query("search") search: string,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+    @Query('search') search: string,
   ) {
     return this.pieces.getAllPieces(page, limit, search);
   }
@@ -70,9 +81,9 @@ export class PiecesController {
         in: 'path',
         description: 'Piece id',
         required: true,
-        schema: { type: 'number' }
+        schema: { type: 'number' },
       },
-    ]
+    ],
   })
   @ApiBearerAuth()
   async getById(@Param('id') id: number) {
@@ -80,7 +91,7 @@ export class PiecesController {
   }
 
   @UseGuards(AuthGuard, UserTypeGuard)
-  @UserTypes("SUPPER_ADMIN")
+  @UserTypes('SUPPER_ADMIN')
   @Patch(':id')
   @ApiOperation({
     summary: 'Edit piece by id',
@@ -90,9 +101,9 @@ export class PiecesController {
         in: 'path',
         description: 'Piece id',
         required: true,
-        schema: { type: 'number' }
+        schema: { type: 'number' },
       },
-    ]
+    ],
   })
   @ApiBearerAuth()
   async editPiece(
@@ -103,7 +114,7 @@ export class PiecesController {
   }
 
   @UseGuards(AuthGuard, UserTypeGuard)
-  @UserTypes("SUPPER_ADMIN")
+  @UserTypes('SUPPER_ADMIN')
   @Delete(':id')
   @ApiOperation({
     summary: 'Delete piece by id',
@@ -113,9 +124,9 @@ export class PiecesController {
         in: 'path',
         description: 'Piece id',
         required: true,
-        schema: { type: 'number' }
+        schema: { type: 'number' },
       },
-    ]
+    ],
   })
   @ApiBearerAuth()
   async deletePiece(@Param('id') id: number) {
