@@ -7,10 +7,10 @@ import { handlePrismaError } from 'src/utils/prisma-error.util';
 
 @Injectable()
 export class PiecesService {
-  constructor(private readonly prismaService: PrismaService) { }
+  constructor(private readonly prismaService: PrismaService) {}
 
   async createPiece(createPieceDto: CreatePieceDto): Promise<Pieces> {
-    let res: Promise<Pieces>
+    let res: Promise<Pieces>;
     try {
       res = this.prismaService.pieces.create({
         data: createPieceDto,
@@ -21,15 +21,19 @@ export class PiecesService {
     return res;
   }
 
-  async getAllPieces(page: number, limit: number, search: string): Promise<Pieces[]> {
-    let res: Promise<Pieces[]>
+  async getAllPieces(
+    page: number,
+    limit: number,
+    search: string,
+  ): Promise<Pieces[]> {
+    let res: Promise<Pieces[]>;
     if (!page) {
       page = 1;
     }
     if (!limit) {
       limit = 10;
     }
-    let filter = {}
+    let filter = {};
     try {
       if (search) {
         filter = {
@@ -37,18 +41,16 @@ export class PiecesService {
             contains: search,
             mode: 'insensitive',
           },
-        }
+        };
       }
-      res = this.prismaService.pieces.findMany(
-        {
-          skip: (page - 1) * limit,
-          take: limit,
-          where: filter,
-          orderBy: {
-            id: 'desc',
-          },
-        }
-      );
+      res = this.prismaService.pieces.findMany({
+        skip: (page - 1) * limit,
+        take: limit,
+        where: filter,
+        orderBy: {
+          id: 'desc',
+        },
+      });
     } catch (error) {
       handlePrismaError(error);
     }
@@ -56,7 +58,7 @@ export class PiecesService {
   }
 
   async getPieceById(id: number): Promise<Pieces> {
-    let res: Promise<Pieces>
+    let res: Promise<Pieces>;
     try {
       res = this.prismaService.pieces.findUnique({
         where: {
@@ -70,7 +72,7 @@ export class PiecesService {
   }
 
   async editPiece(id: number, data: UpdatePieceDto): Promise<Pieces> {
-    let res: Promise<Pieces>
+    let res: Promise<Pieces>;
     try {
       res = this.prismaService.pieces.update({
         where: {
@@ -93,7 +95,7 @@ export class PiecesService {
   }
 
   async deletePiece(id: number): Promise<Pieces> {
-    let res: Promise<Pieces>
+    let res: Promise<Pieces>;
     try {
       res = this.prismaService.pieces.delete({
         where: {

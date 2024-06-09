@@ -16,7 +16,7 @@ import { PaginationDto } from './dto/pagination.dto';
 import { S3Service } from 'src/services/s3.service';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { UserTypeGuard } from 'src/guards/user-type.guard';
-import { UserTypes } from 'src/decorators/userTypes.decorato';
+import { UserTypes } from 'src/decorators/userTypes.decorator';
 import { CategoryIdDto } from './dto/category-id.dto';
 
 @ApiTags('categories')

@@ -19,7 +19,7 @@ import { FindUserQueryDto } from './dto/find-users-query.dto';
 import { ChangeUserTypeDto } from './dto/change-user-type.dto';
 import { UserIdDto } from './dto/user-id.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UserTypes } from 'src/decorators/userTypes.decorato';
+import { UserTypes } from 'src/decorators/userTypes.decorator';
 import { UserTypeGuard } from 'src/guards/user-type.guard';
 
 @ApiTags('users')

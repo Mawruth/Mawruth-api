@@ -7,7 +7,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { UserType } from '@prisma/client';
 import { Observable } from 'rxjs';
-import { TYPES_KEY } from 'src/decorators/userTypes.decorato';
+import { TYPES_KEY } from 'src/decorators/userTypes.decorator';
 
 @Injectable()
 export class UserTypeGuard implements CanActivate {
