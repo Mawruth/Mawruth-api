@@ -5,7 +5,8 @@ import { UpdateMuseumReviewDto } from './dto/update-museum-review.dto';
 import { ApiBearerAuth, ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { UserTypeGuard } from 'src/guards/user-type.guard';
-import { UserTypes } from 'src/decorators/userTypes.decorato';
+import { UserTypes } from 'src/decorators/userTypes.decorator';
+import { Pagination } from 'src/shared/dto/pagination';
 
 @ApiTags("museum-reviews")
 @Controller('museums/:museumId/reviews')
@@ -47,29 +48,14 @@ export class MuseumReviewsController {
         required: true,
         schema: { type: 'number' }
       },
-      {
-        name: 'page',
-        in: 'query',
-        description: 'Page number',
-        required: false,
-        schema: { type: 'number' }
-      },
-      {
-        name: 'limit',
-        in: 'query',
-        description: 'Limit number',
-        required: false,
-        schema: { type: 'number' }
-      },
     ]
   })
   @Get()
   findAll(
     @Param('museumId') museumId: number,
-    @Query("page") page?: number,
-    @Query("limit") limit?: number,
+    @Query() pagination: Pagination
   ) {
-    return this.museumReviewsService.findAll(museumId, page, limit);
+    return this.museumReviewsService.findAll(museumId, pagination);
   }
 
   @ApiOperation({
