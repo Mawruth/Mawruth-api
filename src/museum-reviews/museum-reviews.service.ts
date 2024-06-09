@@ -1,16 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { CreateMuseumReviewDto } from './dto/create-museum-review.dto';
 import { UpdateMuseumReviewDto } from './dto/update-museum-review.dto';
-import { MuseumReview } from './entities/museum-review.entity';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { handlePrismaError } from 'src/utils/prisma-error.util';
+import { MuseumReviews } from '@prisma/client';
+import { Pagination } from 'src/shared/dto/pagination';
 
 @Injectable()
 export class MuseumReviewsService {
   constructor(private readonly prismaService: PrismaService) { }
 
-  async create(createMuseumReviewDto: CreateMuseumReviewDto): Promise<MuseumReview> {
-    let res: Promise<MuseumReview>
+  async create(createMuseumReviewDto: CreateMuseumReviewDto): Promise<MuseumReviews> {
+    let res: Promise<MuseumReviews>
     try {
       res = this.prismaService.museumReviews.create({
         data: createMuseumReviewDto,
@@ -23,18 +24,11 @@ export class MuseumReviewsService {
 
   async findAll(
     museumId: number,
-    page?: number,
-    limit?: number,
-  ): Promise<MuseumReview[]> {
-    let res: Promise<MuseumReview[]>
-
-    if (!page) {
-      page = 1;
-    }
-
-    if (!limit) {
-      limit = 10;
-    }
+    pagination: Pagination
+  ): Promise<MuseumReviews[]> {
+    let res: Promise<MuseumReviews[]>
+    const page = pagination.page || 1;
+    const limit = pagination.limit || 50;
 
     try {
       res = this.prismaService.museumReviews.findMany({
@@ -53,8 +47,8 @@ export class MuseumReviewsService {
     return res;
   }
 
-  async findOne(id: number, museumId: number): Promise<MuseumReview> {
-    let res: Promise<MuseumReview>
+  async findOne(id: number, museumId: number): Promise<MuseumReviews> {
+    let res: Promise<MuseumReviews>
     try {
       res = this.prismaService.museumReviews.findUnique({
         where: {
@@ -68,8 +62,8 @@ export class MuseumReviewsService {
     return res;
   }
 
-  async update(id: number, museumId: number, updateMuseumReviewDto: UpdateMuseumReviewDto): Promise<MuseumReview> {
-    let res: Promise<MuseumReview>
+  async update(id: number, museumId: number, updateMuseumReviewDto: UpdateMuseumReviewDto): Promise<MuseumReviews> {
+    let res: Promise<MuseumReviews>
 
     try {
       res = this.prismaService.museumReviews.update({
@@ -85,8 +79,8 @@ export class MuseumReviewsService {
     return res;
   }
 
-  async remove(id: number, museumId: number): Promise<MuseumReview> {
-    let res: Promise<MuseumReview>
+  async remove(id: number, museumId: number): Promise<MuseumReviews> {
+    let res: Promise<MuseumReviews>
     try {
       res = this.prismaService.museumReviews.delete({
         where: {
