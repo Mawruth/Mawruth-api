@@ -66,8 +66,8 @@ export class MuseumReviewsController {
   @Get()
   findAll(
     @Param('museumId') museumId: number,
-    @Query("page") page: number,
-    @Query("limit") limit: number,
+    @Query("page") page?: number,
+    @Query("limit") limit?: number,
   ) {
     return this.museumReviewsService.findAll(museumId, page, limit);
   }
@@ -157,6 +157,6 @@ export class MuseumReviewsController {
     @Param('museumId') museumId: number,
     @Param('id') id: string
   ) {
-    return this.museumReviewsService.remove(+id,+museumId);
+    return this.museumReviewsService.remove(+id, +museumId);
   }
 }

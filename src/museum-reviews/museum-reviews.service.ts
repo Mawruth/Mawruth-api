@@ -23,10 +23,19 @@ export class MuseumReviewsService {
 
   async findAll(
     museumId: number,
-    page: number = 1,
-    limit: number = 10,
+    page?: number,
+    limit?: number,
   ): Promise<MuseumReview[]> {
     let res: Promise<MuseumReview[]>
+
+    if (!page) {
+      page = 1;
+    }
+
+    if (!limit) {
+      limit = 10;
+    }
+
     try {
       res = this.prismaService.museumReviews.findMany({
         where: {
@@ -61,6 +70,7 @@ export class MuseumReviewsService {
 
   async update(id: number, museumId: number, updateMuseumReviewDto: UpdateMuseumReviewDto): Promise<MuseumReview> {
     let res: Promise<MuseumReview>
+
     try {
       res = this.prismaService.museumReviews.update({
         where: {
