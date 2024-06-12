@@ -22,12 +22,13 @@ model Categories {
 }
 
 model Museums {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
+  id          Int             @id @default(autoincrement())
+  name        String          @unique
   description String
   city        String
   street      String
   pieces      Pieces[]
+  reviews     MuseumReviews[]
 
   @@map("museums")
 }
@@ -41,6 +42,7 @@ model Pieces {
   sectionId     Int
   museumId      Int
   arPath        String?
+  soundPath     String?
   Museums       Museums? @relation(fields: [museumId], references: [id])
 
   @@map("pieces")
@@ -68,4 +70,13 @@ enum UserType {
   USER
   SUPPER_ADMIN
   MUSEUMS_ADMIN
+}
+
+model MuseumReviews {
+  id       Int      @id @default(autoincrement())
+  museumId Int
+  userId   Int
+  rating   Float
+  content  String?
+  Museums  Museums? @relation(fields: [museumId], references: [id])
 }
