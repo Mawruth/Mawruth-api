@@ -14,11 +14,19 @@ datasource db {
 }
 
 model Categories {
-  id    Int     @id @default(autoincrement())
-  name  String  @unique
-  image String?
-
+  id          Int           @id @default(autoincrement())
+  name        String        @unique
+  image       String?
+  museums     MuseumsCategories[]
   @@map("categories")
+}
+
+model MuseumsCategories {
+  id          Int         @id @default(autoincrement())
+  categoryId  Int 
+  category    Categories  @relation(fields: [categoryId], references: [id])
+  museumId    Int
+  museum      Museums     @relation(fields: [museumId], references: [id])
 }
 
 model Museums {
@@ -29,23 +37,58 @@ model Museums {
   street      String
   pieces      Pieces[]
   reviews     MuseumReviews[]
+  images      MuseumsImages[]
+  halls       Halls[]
+  categories  MuseumsCategories[]
 
   @@map("museums")
 }
 
+model MuseumsImages {
+  id          Int             @id @default(autoincrement())
+  image_path  String
+  museum_id   Int
+  museum      Museums         @relation(fields: [museum_id], references: [id], onDelete: Cascade)
+
+  @@map("museums_images")
+}
+
+model Halls {
+  id          Int             @id @default(autoincrement())
+  name        String
+  soundPath   String?
+  image_path  String?
+  museum_id   Int
+  museum      Museums         @relation(fields: [museum_id], references: [id], onDelete: Cascade)
+  pieces      Pieces[]
+
+  @@map("halls")
+}
+
 model Pieces {
-  id            Int      @id @default(autoincrement())
+  id            Int             @id @default(autoincrement())
   name          String
   description   String?
   isMasterpiece Boolean
   age           String
-  sectionId     Int
   museumId      Int
   arPath        String?
   soundPath     String?
-  Museums       Museums? @relation(fields: [museumId], references: [id])
+  museum        Museums        @relation(fields: [museumId], references: [id], onDelete: Cascade)
+  images        PiecesImages[]
+  hallId        Int
+  hall          Halls           @relation(fields: [hallId], references: [id], onDelete: Cascade)
 
   @@map("pieces")
+}
+
+model PiecesImages {
+  id            Int       @id @default(autoincrement())
+  image_path    String
+  piece_id      Int
+  piece         Pieces    @relation(fields: [piece_id], references: [id], onDelete: Cascade)
+
+  @@map("pieces_images") 
 }
 
 model Users {
@@ -61,6 +104,7 @@ model Users {
   otp_created_at DateTime?
   otp_expire_at  DateTime?
   active         Boolean   @default(false)
+  reviews        MuseumReviews[]
 
   @@index([otp, otp_expire_at])
   @@map("users")
@@ -73,10 +117,11 @@ enum UserType {
 }
 
 model MuseumReviews {
-  id       Int      @id @default(autoincrement())
-  museumId Int
-  userId   Int
-  rating   Float
-  content  String?
-  Museums  Museums? @relation(fields: [museumId], references: [id])
+  id        Int       @id @default(autoincrement())
+  museumId  Int
+  userId    Int
+  rating    Float
+  content   String
+  museum    Museums   @relation(fields: [museumId], references: [id], onDelete: Cascade)
+  user      Users     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
