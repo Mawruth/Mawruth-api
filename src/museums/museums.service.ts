@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Museums, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateMuseumDto } from './dto/update-museum.dto';
 import { handlePrismaError } from 'src/utils/prisma-error.util';
 import { CreateMuseumDto } from './dto/create-museum.dto';
 import { FindMuseumQueryDto } from './dto/find-museum-query.dto';
+import { UploadMuseumImagesDto } from './dto/upload-images.dto';
 
 @Injectable()
 export class MuseumsService {
@@ -32,8 +33,17 @@ export class MuseumsService {
         take: limit,
         where,
         include: {
-          images: true,
-          categories: true,
+          images: {
+            select: {
+              image_path: true,
+            },
+          },
+          categories: {
+            select: {
+              categoryId: true,
+              category: true,
+            },
+          },
         },
       });
 
@@ -50,8 +60,17 @@ export class MuseumsService {
           id: id,
         },
         include: {
-          images: true,
-          categories: true,
+          images: {
+            select: {
+              image_path: true,
+            },
+          },
+          categories: {
+            select: {
+              categoryId: true,
+              category: true,
+            },
+          },
         },
       });
 
@@ -71,6 +90,35 @@ export class MuseumsService {
       handlePrismaError(error);
     }
     return res;
+  }
+
+  async uploadMuseumImages(museumImages: UploadMuseumImagesDto) {
+    const museum = await this.prismaService.museums.findUnique({
+      where: {
+        id: museumImages.museumId,
+      },
+    });
+
+    if (!museum) {
+      throw new NotFoundException('this museum not found');
+    }
+
+    interface ImageData {
+      museum_id: number;
+      image_path: string;
+    }
+
+    const data = museumImages.images.map((image) => {
+      const imageData: ImageData = {
+        museum_id: museumImages.museumId,
+        image_path: image,
+      };
+      return imageData;
+    });
+
+    await this.prismaService.museumsImages.createMany({
+      data,
+    });
   }
 
   async editMuseum(id: number, data: UpdateMuseumDto): Promise<Museums> {
