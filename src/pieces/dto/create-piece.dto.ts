@@ -1,43 +1,52 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsIn, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsPositive,
+  IsString,
+} from 'class-validator';
+
+import { Type } from 'class-transformer';
 
 export class CreatePieceDto {
-	@IsString()
-	@IsNotEmpty()
-	@ApiProperty()
-	name: string
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  name: string;
 
-	@IsString()
-	@IsOptional()
-	@ApiProperty()
-	description?: string
+  @IsString()
+  @IsOptional()
+  @ApiProperty()
+  description?: string;
 
-	@IsBoolean()
-	@IsNotEmpty()
-	@ApiProperty()
-	isMasterpiece: boolean
+  @IsBoolean()
+  @IsNotEmpty()
+  @ApiProperty()
+  isMasterpiece: boolean;
 
-	@ApiProperty()
-	@IsString()
-	@IsNotEmpty()
-	@ApiProperty()
-	age: string
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  age: string;
 
-	@ApiProperty()
-	@IsInt()
-	@IsNotEmpty()
-	@ApiProperty()
-	museumId: number
+  @ApiProperty()
+  @IsInt()
+  @IsPositive()
+  @Type(() => Number)
+  museumId: number;
 
-	@ApiProperty()
-	@IsInt()
-	@IsNotEmpty()
-	@ApiProperty()
-	sectionId: number
+  @ApiProperty()
+  @IsInt()
+  @IsPositive()
+  @Type(() => Number)
+  hallId: number;
 
-	@ApiProperty()
-	@IsString()
-	@IsOptional()
-	@ApiProperty()
-	arPath?: string
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  @ApiProperty()
+  arPath?: string;
 }

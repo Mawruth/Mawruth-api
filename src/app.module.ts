@@ -15,18 +15,19 @@ import { JwtModule } from '@nestjs/jwt';
 import jwtConfig from './config/jwt.config';
 import emailConfig from './config/email.config';
 import awsConfig from './config/aws.config';
-import { S3Service } from './services/s3.service';
 import { AuthUtils } from './utils/auth.utils';
 import { EmailService } from './services/email.service';
 import { PiecesModule } from './pieces/pieces.module';
 import { MuseumReviewsModule } from './museum-reviews/museum-reviews.module';
+import azureConfig from './config/azure.config';
+import { AzureBlobService } from './services/azure-blob.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
-      load: [appConfig, jwtConfig, emailConfig, awsConfig],
+      load: [appConfig, jwtConfig, emailConfig, awsConfig, azureConfig],
     }),
     MuseumsModule,
     PrismaModule,
@@ -52,10 +53,10 @@ import { MuseumReviewsModule } from './museum-reviews/museum-reviews.module';
     AppService,
     CategoriesService,
     UsersService,
-    S3Service,
+    AzureBlobService,
     AuthUtils,
     EmailService,
     Logger,
   ],
 })
-export class AppModule { }
+export class AppModule {}

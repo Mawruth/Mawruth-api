@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { CategoriesController } from './categories.controller';
 import { CategoriesService } from './categories.service';
-import { S3Service } from 'src/services/s3.service';
+import { AzureBlobService } from 'src/services/azure-blob.service';
 
 @Module({
   controllers: [CategoriesController],
-  providers: [CategoriesService, S3Service],
+  providers: [CategoriesService, AzureBlobService],
 })
 export class CategoriesModule {}

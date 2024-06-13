@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Museums, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateMuseumDto } from './dto/update-museum.dto';
@@ -31,6 +31,10 @@ export class MuseumsService {
         skip,
         take: limit,
         where,
+        include: {
+          images: true,
+          categories: true,
+        },
       });
 
       return museums;
@@ -44,6 +48,10 @@ export class MuseumsService {
       const res = await this.prismaService.museums.findUnique({
         where: {
           id: id,
+        },
+        include: {
+          images: true,
+          categories: true,
         },
       });
 

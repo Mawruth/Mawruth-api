@@ -56,6 +56,7 @@ model MuseumsImages {
 model Halls {
   id          Int             @id @default(autoincrement())
   name        String
+  description String
   soundPath   String?
   image_path  String?
   museum_id   Int
@@ -77,7 +78,7 @@ model Pieces {
   museum        Museums        @relation(fields: [museumId], references: [id], onDelete: Cascade)
   images        PiecesImages[]
   hallId        Int
-  hall          Halls           @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  hall          Halls          @relation(fields: [hallId], references: [id], onDelete: Cascade)
 
   @@map("pieces")
 }
