@@ -84,7 +84,6 @@ export class PiecesService {
           isMasterpiece: data.isMasterpiece,
           age: data.age,
           museumId: data.museumId,
-          sectionId: data.sectionId,
           arPath: data.arPath,
         },
       });
