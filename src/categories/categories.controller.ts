@@ -3,28 +3,38 @@ import {
   Controller,
   Delete,
   Get,
+  HttpStatus,
   Param,
+  ParseFilePipeBuilder,
   Post,
   Put,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { CategoriesService } from './categories.service';
 import { PaginationDto } from './dto/pagination.dto';
-import { S3Service } from 'src/services/s3.service';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { UserTypeGuard } from 'src/guards/user-type.guard';
 import { UserTypes } from 'src/decorators/userTypes.decorator';
 import { CategoryIdDto } from './dto/category-id.dto';
+import { AzureBlobService } from 'src/services/azure-blob.service';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('categories')
 @Controller('categories')
 export class CategoriesController {
   constructor(
     private readonly categoriesService: CategoriesService,
-    private readonly s3Service: S3Service,
+    private readonly azureService: AzureBlobService,
   ) {}
 
   @Post()
@@ -34,7 +44,24 @@ export class CategoriesController {
     summary: 'Create new category',
   })
   @ApiBearerAuth()
-  async createCategory(@Body() createCategoryDto: CreateCategoryDto) {
+  @UseInterceptors(FileInterceptor('image'))
+  @ApiConsumes('multipart/form-data')
+  async createCategory(
+    @Body() createCategoryDto: CreateCategoryDto,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: 'png',
+        })
+        .build({
+          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+        }),
+    )
+    file: Express.Multer.File,
+  ) {
+    const imageName = await this.azureService.uploadFile(file, 'Category');
+    const imageUrl = this.azureService.getBlobUrl(imageName);
+    createCategoryDto.image = imageUrl;
     const category =
       await this.categoriesService.createCategory(createCategoryDto);
     return category;

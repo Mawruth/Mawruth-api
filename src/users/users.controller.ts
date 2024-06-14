@@ -4,14 +4,23 @@ import {
   Delete,
   Get,
   Param,
+  ParseFilePipeBuilder,
   Patch,
   Post,
   Put,
   Query,
   Request,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -21,19 +30,52 @@ import { UserIdDto } from './dto/user-id.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserTypes } from 'src/decorators/userTypes.decorator';
 import { UserTypeGuard } from 'src/guards/user-type.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { AzureBlobService } from 'src/services/azure-blob.service';
+import { ImageUploadDto } from 'src/shared/dto/File-upload.dto';
 
 @ApiTags('users')
 @ApiBearerAuth()
 @UseGuards(AuthGuard, UserTypeGuard)
 @Controller('users')
 export class UsersController {
-  constructor(private readonly userService: UsersService) {}
+  constructor(
+    private readonly userService: UsersService,
+    private readonly azureService: AzureBlobService,
+  ) {}
   @Get('me')
   @ApiOperation({
     summary: 'Get my profile',
   })
   getMe(@Request() req) {
     return req.user;
+  }
+
+  @Put('upload-image')
+  @UseInterceptors(FileInterceptor('image'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    type: ImageUploadDto,
+  })
+  async uploadImage(
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: 'jpeg',
+        })
+        .build(),
+    )
+    file: Express.Multer.File,
+    @Request() req,
+  ) {
+    const imageName = await this.azureService.uploadFile(file, 'User');
+    const imageUrl = this.azureService.getBlobUrl(imageName);
+    return await this.userService.updateImage(req.user.id, imageUrl);
+  }
+
+  @Put('remove-image')
+  async removeImage(@Request() req) {
+    return await this.userService.updateImage(req.user.id, '');
   }
 
   @Post()
