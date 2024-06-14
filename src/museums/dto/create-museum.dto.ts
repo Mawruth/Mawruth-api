@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty, IsArray } from 'class-validator';
 
 export class CreateMuseumDto {
   @IsString()
@@ -21,4 +21,9 @@ export class CreateMuseumDto {
   @IsNotEmpty()
   @ApiProperty()
   street: string;
+
+  @IsArray()
+  @IsNotEmpty()
+  @ApiProperty()
+  categories: number[];
 }

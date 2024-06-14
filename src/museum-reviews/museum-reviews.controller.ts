@@ -1,61 +1,55 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+  Request,
+} from '@nestjs/common';
 import { MuseumReviewsService } from './museum-reviews.service';
 import { CreateMuseumReviewDto } from './dto/create-museum-review.dto';
 import { UpdateMuseumReviewDto } from './dto/update-museum-review.dto';
-import { ApiBearerAuth, ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { UserTypeGuard } from 'src/guards/user-type.guard';
 import { UserTypes } from 'src/decorators/userTypes.decorator';
 import { Pagination } from 'src/shared/dto/pagination';
+import { MuseumIdDto } from 'src/museums/dto/museum-id.dto';
 
-@ApiTags("museum-reviews")
-@Controller('museums/:museumId/reviews')
+@ApiTags('museum-reviews')
+@Controller('museums/:id/reviews')
 export class MuseumReviewsController {
-  constructor(private readonly museumReviewsService: MuseumReviewsService) { }
+  constructor(private readonly museumReviewsService: MuseumReviewsService) {}
 
   @ApiBearerAuth()
   @UseGuards(AuthGuard, UserTypeGuard)
-  @UserTypes("SUPPER_ADMIN")
-  @ApiOperation({
-    summary: 'Create new museum review',
-    parameters: [
-      {
-        name: 'museumId',
-        in: 'path',
-        description: 'Museum id',
-        required: true,
-        schema: { type: 'number' }
-      }
-    ]
-  })
+  @UserTypes('USER')
   @Post()
   async create(
+    @Param() museumId: MuseumIdDto,
     @Body() createMuseumReviewDto: CreateMuseumReviewDto,
-    @Param('museumId') museumId: number,
+    @Request() req,
   ) {
-    createMuseumReviewDto.museumId = +museumId
-    return this.museumReviewsService.create(createMuseumReviewDto);
+    console.log(createMuseumReviewDto);
+    console.log(museumId);
+    createMuseumReviewDto.museumId = museumId.id;
+    createMuseumReviewDto.userId = req.user.id;
+    return await this.museumReviewsService.create(createMuseumReviewDto);
   }
 
-  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Get all museum reviews',
-    parameters: [
-      {
-        name: 'museumId',
-        in: 'path',
-        description: 'Museum id',
-        required: true,
-        schema: { type: 'number' }
-      },
-    ]
   })
   @Get()
-  findAll(
-    @Param('museumId') museumId: number,
-    @Query() pagination: Pagination
+  async findAll(
+    @Param() museumId: MuseumIdDto,
+    @Query() pagination: Pagination,
   ) {
-    return this.museumReviewsService.findAll(museumId, pagination);
+    return await this.museumReviewsService.findAll(museumId.id, pagination);
   }
 
   @ApiOperation({
@@ -66,28 +60,25 @@ export class MuseumReviewsController {
         in: 'path',
         description: 'Museum id',
         required: true,
-        schema: { type: 'number' }
+        schema: { type: 'number' },
       },
       {
         name: 'id',
         in: 'path',
         description: 'Museum review id',
         required: true,
-        schema: { type: 'number' }
+        schema: { type: 'number' },
       },
-    ]
+    ],
   })
   @Get(':id')
-  findOne(
-    @Param('museumId') museumId: number,
-    @Param('id') id: number,
-  ) {
+  findOne(@Param('museumId') museumId: number, @Param('id') id: number) {
     return this.museumReviewsService.findOne(+id, +museumId);
   }
 
   @ApiBearerAuth()
   @UseGuards(AuthGuard, UserTypeGuard)
-  @UserTypes("SUPPER_ADMIN")
+  @UserTypes('SUPPER_ADMIN')
   @ApiOperation({
     summary: 'Update museum review by id',
     parameters: [
@@ -96,29 +87,33 @@ export class MuseumReviewsController {
         in: 'path',
         description: 'Museum id',
         required: true,
-        schema: { type: 'number' }
+        schema: { type: 'number' },
       },
       {
         name: 'id',
         in: 'path',
         description: 'Museum review id',
         required: true,
-        schema: { type: 'number' }
+        schema: { type: 'number' },
       },
-    ]
+    ],
   })
   @Patch(':id')
   update(
     @Param('museumId') museumId: number,
     @Param('id') id: number,
-    @Body() updateMuseumReviewDto: UpdateMuseumReviewDto
+    @Body() updateMuseumReviewDto: UpdateMuseumReviewDto,
   ) {
-    return this.museumReviewsService.update(+id, +museumId, updateMuseumReviewDto);
+    return this.museumReviewsService.update(
+      +id,
+      +museumId,
+      updateMuseumReviewDto,
+    );
   }
 
   @ApiBearerAuth()
   @UseGuards(AuthGuard, UserTypeGuard)
-  @UserTypes("SUPPER_ADMIN")
+  @UserTypes('SUPPER_ADMIN')
   @ApiOperation({
     summary: 'Delete museum review by id',
     parameters: [
@@ -127,22 +122,19 @@ export class MuseumReviewsController {
         in: 'path',
         description: 'Museum id',
         required: true,
-        schema: { type: 'number' }
+        schema: { type: 'number' },
       },
       {
         name: 'id',
         in: 'path',
         description: 'Museum review id',
         required: true,
-        schema: { type: 'number' }
+        schema: { type: 'number' },
       },
-    ]
+    ],
   })
   @Delete(':id')
-  remove(
-    @Param('museumId') museumId: number,
-    @Param('id') id: string
-  ) {
+  remove(@Param('museumId') museumId: number, @Param('id') id: string) {
     return this.museumReviewsService.remove(+id, +museumId);
   }
 }

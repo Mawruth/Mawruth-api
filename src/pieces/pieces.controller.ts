@@ -8,7 +8,10 @@ import {
   Delete,
   UseGuards,
   Query,
-  Put,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipeBuilder,
+  HttpStatus,
 } from '@nestjs/common';
 import { PiecesService } from './pieces.service';
 import { CreatePieceDto } from './dto/create-piece.dto';
@@ -16,12 +19,25 @@ import { UpdatePieceDto } from './dto/update-piece.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { UserTypeGuard } from 'src/guards/user-type.guard';
 import { UserTypes } from 'src/decorators/userTypes.decorator';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import { FindPieceDto } from './dto/find-piece.dto';
+import { MuseumIdDto } from 'src/museums/dto/museum-id.dto';
+import { PieceIdDto } from './dto/piece-id.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { AzureBlobService } from 'src/services/azure-blob.service';
 
 @ApiTags('pieces')
 @Controller('pieces')
 export class PiecesController {
-  constructor(private readonly pieces: PiecesService) {}
+  constructor(
+    private readonly pieces: PiecesService,
+    private readonly azureService: AzureBlobService,
+  ) {}
 
   @UseGuards(AuthGuard, UserTypeGuard)
   @UserTypes('SUPPER_ADMIN')
@@ -30,64 +46,45 @@ export class PiecesController {
   })
   @ApiBearerAuth()
   @Post()
-  create(@Body() createPieceDto: CreatePieceDto) {
-    return this.pieces.createPiece(createPieceDto);
+  @UseInterceptors(FileInterceptor('image'))
+  @ApiConsumes('multipart/form-data')
+  async create(
+    @Body() createPieceDto: CreatePieceDto,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: 'jpeg',
+        })
+        .build({
+          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+        }),
+    )
+    file: Express.Multer.File,
+  ) {
+    const imageName = await this.azureService.uploadFile(file, 'Piece');
+    const imageUrl = this.azureService.getBlobUrl(imageName);
+    createPieceDto.image = imageUrl;
+    return await this.pieces.createPiece(createPieceDto);
   }
 
-  @UseGuards(AuthGuard)
   @ApiOperation({
     summary: 'Get all pieces',
-    parameters: [
-      {
-        name: 'page',
-        in: 'query',
-        description: 'Page number',
-        required: false,
-        schema: { type: 'number' },
-      },
-      {
-        name: 'limit',
-        in: 'query',
-        description: 'Limit number',
-        required: false,
-        schema: { type: 'number' },
-      },
-      {
-        name: 'search',
-        in: 'query',
-        description: 'Search by name',
-        required: false,
-        schema: { type: 'string' },
-      },
-    ],
   })
-  @ApiBearerAuth()
-  @Get()
+  @Get('museum/:id')
   async getAllPieces(
-    @Query('page') page: number,
-    @Query('limit') limit: number,
-    @Query('search') search: string,
+    @Query() query: FindPieceDto,
+    @Param() museumId: MuseumIdDto,
   ) {
-    return this.pieces.getAllPieces(page, limit, search);
+    return await this.pieces.getAllPieces(query, museumId.id);
   }
 
-  @UseGuards(AuthGuard)
   @Get(':id')
   @ApiOperation({
     summary: 'Get piece by id',
-    parameters: [
-      {
-        name: 'id',
-        in: 'path',
-        description: 'Piece id',
-        required: true,
-        schema: { type: 'number' },
-      },
-    ],
   })
   @ApiBearerAuth()
-  async getById(@Param('id') id: number) {
-    return this.pieces.getPieceById(id);
+  async getById(@Param() pieceId: PieceIdDto) {
+    return this.pieces.getPieceById(pieceId.id);
   }
 
   @UseGuards(AuthGuard, UserTypeGuard)
@@ -95,22 +92,13 @@ export class PiecesController {
   @Patch(':id')
   @ApiOperation({
     summary: 'Edit piece by id',
-    parameters: [
-      {
-        name: 'id',
-        in: 'path',
-        description: 'Piece id',
-        required: true,
-        schema: { type: 'number' },
-      },
-    ],
   })
   @ApiBearerAuth()
   async editPiece(
-    @Param('id') id: number,
+    @Param() pieceId: PieceIdDto,
     @Body() editPieceDto: UpdatePieceDto,
   ) {
-    return this.pieces.editPiece(id, editPieceDto);
+    return this.pieces.editPiece(pieceId.id, editPieceDto);
   }
 
   @UseGuards(AuthGuard, UserTypeGuard)
@@ -118,18 +106,12 @@ export class PiecesController {
   @Delete(':id')
   @ApiOperation({
     summary: 'Delete piece by id',
-    parameters: [
-      {
-        name: 'id',
-        in: 'path',
-        description: 'Piece id',
-        required: true,
-        schema: { type: 'number' },
-      },
-    ],
   })
   @ApiBearerAuth()
-  async deletePiece(@Param('id') id: number) {
-    return this.pieces.deletePiece(id);
+  async deletePiece(@Param() pieceId: PieceIdDto) {
+    await this.pieces.deletePiece(pieceId.id);
+    return {
+      message: 'piece deleted successfully',
+    };
   }
 }

@@ -5,6 +5,7 @@ import { UpdateMuseumDto } from './dto/update-museum.dto';
 import { handlePrismaError } from 'src/utils/prisma-error.util';
 import { CreateMuseumDto } from './dto/create-museum.dto';
 import { FindMuseumQueryDto } from './dto/find-museum-query.dto';
+import { UploadMuseumImagesDto } from './dto/upload-images.dto';
 
 @Injectable()
 export class MuseumsService {
@@ -31,6 +32,23 @@ export class MuseumsService {
         skip,
         take: limit,
         where,
+        include: {
+          images: {
+            select: {
+              image_path: true,
+            },
+          },
+          categories: {
+            select: {
+              category: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+        },
       });
 
       return museums;
@@ -45,6 +63,23 @@ export class MuseumsService {
         where: {
           id: id,
         },
+        include: {
+          images: {
+            select: {
+              image_path: true,
+            },
+          },
+          categories: {
+            select: {
+              category: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+        },
       });
 
       return res;
@@ -54,15 +89,66 @@ export class MuseumsService {
   }
 
   async createMuseum(museum: CreateMuseumDto): Promise<Museums> {
-    let res: Promise<Museums>;
     try {
-      res = this.prismaService.museums.create({
-        data: museum,
+      interface CategoryId {
+        categoryId: number;
+        museumId: number;
+      }
+
+      const res = await this.prismaService.museums.create({
+        data: {
+          name: museum.name,
+          description: museum.description,
+          city: museum.city,
+          street: museum.street,
+        },
       });
+
+      const categoriesId = museum.categories.map((id) => {
+        const categories: CategoryId = {
+          categoryId: id,
+          museumId: res.id,
+        };
+        return categories;
+      });
+
+      await this.prismaService.museumsCategories.createMany({
+        data: categoriesId,
+      });
+
+      return res;
     } catch (error) {
       handlePrismaError(error);
     }
-    return res;
+  }
+
+  async uploadMuseumImages(museumImages: UploadMuseumImagesDto) {
+    const museum = await this.prismaService.museums.findUnique({
+      where: {
+        id: museumImages.museumId,
+      },
+    });
+
+    if (!museum) {
+      throw new NotFoundException('this museum not found');
+    }
+
+    interface ImageData {
+      museum_id: number;
+      image_path: string;
+    }
+
+    const data = museumImages.images.map((image) => {
+      const imageData: ImageData = {
+        museum_id: museumImages.museumId,
+        image_path: image,
+      };
+      return imageData;
+    });
+
+    await this.prismaService.museumsImages.createMany({
+      data,
+    });
   }
 
   async editMuseum(id: number, data: UpdateMuseumDto): Promise<Museums> {
@@ -85,10 +171,9 @@ export class MuseumsService {
     return res;
   }
 
-  async deleteMuseum(id: number): Promise<Museums> {
-    let res: Promise<Museums>;
+  async deleteMuseum(id: number) {
     try {
-      res = this.prismaService.museums.delete({
+      await this.prismaService.museums.delete({
         where: {
           id: id,
         },
@@ -96,6 +181,5 @@ export class MuseumsService {
     } catch (error) {
       handlePrismaError(error);
     }
-    return res;
   }
 }
