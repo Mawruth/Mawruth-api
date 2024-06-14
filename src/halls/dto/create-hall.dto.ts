@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsInt, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateHallDto {
   @ApiProperty()
@@ -18,7 +18,6 @@ export class CreateHallDto {
   @Type(() => Number)
   museum_id: number;
 
-  @IsOptional()
-  @IsString()
-  image_path?: string;
+  @ApiProperty({ type: 'string', format: 'binary' })
+  image: any;
 }

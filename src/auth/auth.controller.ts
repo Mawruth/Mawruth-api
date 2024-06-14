@@ -1,4 +1,11 @@
-import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { UserSignupDto } from './dto/user-signup.dto';
@@ -20,6 +27,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @HttpCode(200)
   login(@Body() loginDto: UserLoginDto) {
     return this.authService.login(loginDto.email, loginDto.password);
   }
@@ -27,6 +35,7 @@ export class AuthController {
   @Post('change-password')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
+  @HttpCode(200)
   changePassword(@Body() changePasswordDto: ChangePasswordDto, @Request() req) {
     return this.authService.changePassword(
       req.user.id,
@@ -46,6 +55,7 @@ export class AuthController {
   }
 
   @Post('reset-password')
+  @HttpCode(200)
   resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     return this.authService.resetPassword(
       resetPasswordDto.email,

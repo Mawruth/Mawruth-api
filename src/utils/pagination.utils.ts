@@ -1,4 +1,4 @@
-export class Pagination {
+export class PaginationUtils {
   static pagination(pageNumber?: number, limitNumber?: number) {
     const page = pageNumber || 1;
     const limit = limitNumber || 10;

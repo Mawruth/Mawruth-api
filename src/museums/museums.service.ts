@@ -40,8 +40,12 @@ export class MuseumsService {
           },
           categories: {
             select: {
-              categoryId: true,
-              category: true,
+              category: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
             },
           },
         },
@@ -67,8 +71,12 @@ export class MuseumsService {
           },
           categories: {
             select: {
-              categoryId: true,
-              category: true,
+              category: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
             },
           },
         },
@@ -81,15 +89,37 @@ export class MuseumsService {
   }
 
   async createMuseum(museum: CreateMuseumDto): Promise<Museums> {
-    let res: Promise<Museums>;
     try {
-      res = this.prismaService.museums.create({
-        data: museum,
+      interface CategoryId {
+        categoryId: number;
+        museumId: number;
+      }
+
+      const res = await this.prismaService.museums.create({
+        data: {
+          name: museum.name,
+          description: museum.description,
+          city: museum.city,
+          street: museum.street,
+        },
       });
+
+      const categoriesId = museum.categories.map((id) => {
+        const categories: CategoryId = {
+          categoryId: id,
+          museumId: res.id,
+        };
+        return categories;
+      });
+
+      await this.prismaService.museumsCategories.createMany({
+        data: categoriesId,
+      });
+
+      return res;
     } catch (error) {
       handlePrismaError(error);
     }
-    return res;
   }
 
   async uploadMuseumImages(museumImages: UploadMuseumImagesDto) {
@@ -141,10 +171,9 @@ export class MuseumsService {
     return res;
   }
 
-  async deleteMuseum(id: number): Promise<Museums> {
-    let res: Promise<Museums>;
+  async deleteMuseum(id: number) {
     try {
-      res = this.prismaService.museums.delete({
+      await this.prismaService.museums.delete({
         where: {
           id: id,
         },
@@ -152,6 +181,5 @@ export class MuseumsService {
     } catch (error) {
       handlePrismaError(error);
     }
-    return res;
   }
 }

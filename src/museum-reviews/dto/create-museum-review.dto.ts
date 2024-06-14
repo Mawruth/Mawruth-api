@@ -1,24 +1,18 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsInt, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateMuseumReviewDto {
-	@ApiProperty()
-	@IsOptional()
-	@IsInt()
-	museumId: number
+  museumId?: number;
 
-	@ApiProperty()
-	@IsNotEmpty()
-	@IsInt()
-	userId: number
+  userId?: number;
 
-	@ApiProperty()
-	@IsNotEmpty()
-	@IsNumber()
-	rating: number
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  rating: number;
 
-	@ApiProperty()
-	@IsOptional()
-	@IsString()
-	content: string
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  content: string;
 }

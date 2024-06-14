@@ -21,9 +21,10 @@ export class CreatePieceDto {
   @ApiProperty()
   description?: string;
 
+  @ApiProperty()
+  @Type(() => Boolean)
   @IsBoolean()
   @IsNotEmpty()
-  @ApiProperty()
   isMasterpiece: boolean;
 
   @ApiProperty()
@@ -49,4 +50,7 @@ export class CreatePieceDto {
   @IsOptional()
   @ApiProperty()
   arPath?: string;
+
+  @ApiProperty({ type: 'string', format: 'binary' })
+  image: any;
 }
