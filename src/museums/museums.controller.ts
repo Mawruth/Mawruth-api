@@ -14,7 +14,12 @@ import {
   UploadedFiles,
 } from '@nestjs/common';
 import { CreateMuseumDto } from './dto/create-museum.dto';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { MuseumsService } from './museums.service';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { UpdateMuseumDto } from './dto/update-museum.dto';
@@ -46,8 +51,10 @@ export class MuseumsController {
   }
 
   @UseGuards(AuthGuard, UserTypeGuard)
+  @ApiBearerAuth()
   @UserTypes('SUPPER_ADMIN')
   @Post('upload-images')
+  @ApiConsumes('multipart/form-data')
   @UseInterceptors(FilesInterceptor('images'))
   async uploadImage(
     @Body() uploadImages: UploadMuseumImagesDto,
@@ -115,6 +122,9 @@ export class MuseumsController {
   })
   @ApiBearerAuth()
   async deleteMuseum(@Param() museumId: MuseumIdDto) {
-    return this.service.deleteMuseum(museumId.id);
+    await this.service.deleteMuseum(museumId.id);
+    return {
+      message: 'museum deleted successfully',
+    };
   }
 }

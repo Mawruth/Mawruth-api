@@ -1,14 +1,14 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsInt, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsInt, IsNotEmpty } from 'class-validator';
 
 export class UploadMuseumImagesDto {
   @IsInt()
   @IsNotEmpty()
   @Type(() => Number)
+  @ApiProperty()
   museumId: number;
 
-  @IsArray()
-  @IsNotEmpty()
-  @IsOptional()
-  images?: string[];
+  @ApiProperty({ type: 'array', items: { type: 'string', format: 'binary' } })
+  images: any[];
 }

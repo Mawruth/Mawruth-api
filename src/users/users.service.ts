@@ -137,4 +137,26 @@ export class UsersService {
       handlePrismaError(error);
     }
   }
+
+  async updateImage(userId: number, imagePath: string) {
+    try {
+      return await this.prisma.users.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          image: imagePath,
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          username: true,
+          image: true,
+        },
+      });
+    } catch (error) {
+      handlePrismaError(error);
+    }
+  }
 }

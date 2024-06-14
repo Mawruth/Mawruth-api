@@ -2,79 +2,77 @@ import { Injectable } from '@nestjs/common';
 import { CreatePieceDto } from './dto/create-piece.dto';
 import { UpdatePieceDto } from './dto/update-piece.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Pieces } from '@prisma/client';
+import { Pieces, Prisma } from '@prisma/client';
 import { handlePrismaError } from 'src/utils/prisma-error.util';
+import { FindPieceDto } from './dto/find-piece.dto';
+import { PaginationUtils } from 'src/utils/pagination.utils';
 
 @Injectable()
 export class PiecesService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async createPiece(createPieceDto: CreatePieceDto): Promise<Pieces> {
-    let res: Promise<Pieces>;
     try {
-      res = this.prismaService.pieces.create({
-        data: createPieceDto,
+      const res = await this.prismaService.pieces.create({
+        data: {
+          name: createPieceDto.name,
+          description: createPieceDto.description,
+          age: createPieceDto.age,
+          hallId: createPieceDto.hallId,
+          museumId: createPieceDto.museumId,
+          arPath: createPieceDto.arPath,
+          image: createPieceDto.image,
+          isMasterpiece: createPieceDto.isMasterpiece,
+        },
       });
+      return res;
     } catch (err) {
       handlePrismaError(err);
     }
-    return res;
   }
 
-  async getAllPieces(
-    page: number,
-    limit: number,
-    search: string,
-  ): Promise<Pieces[]> {
-    let res: Promise<Pieces[]>;
-    if (!page) {
-      page = 1;
-    }
-    if (!limit) {
-      limit = 10;
-    }
-    let filter = {};
+  async getAllPieces(query: FindPieceDto, museumId: number): Promise<Pieces[]> {
+    const pagination = PaginationUtils.pagination(query.page, query.limit);
     try {
-      if (search) {
-        filter = {
-          name: {
-            contains: search,
-            mode: 'insensitive',
+      const where: Prisma.PiecesWhereInput = {};
+      where.museumId = museumId;
+      if (query.name) {
+        where.OR = [
+          {
+            name: { contains: query.name, mode: 'insensitive' },
           },
-        };
+        ];
       }
-      res = this.prismaService.pieces.findMany({
-        skip: (page - 1) * limit,
-        take: limit,
-        where: filter,
+      const res = await this.prismaService.pieces.findMany({
+        skip: pagination.skip,
+        take: pagination.take,
+        where,
         orderBy: {
           id: 'desc',
         },
       });
+      return res;
     } catch (error) {
       handlePrismaError(error);
     }
-    return res;
   }
 
   async getPieceById(id: number): Promise<Pieces> {
-    let res: Promise<Pieces>;
     try {
-      res = this.prismaService.pieces.findUnique({
+      const res = await this.prismaService.pieces.findUnique({
         where: {
           id: id,
         },
       });
+      return res;
     } catch (error) {
       handlePrismaError(error);
     }
-    return res;
   }
 
   async editPiece(id: number, data: UpdatePieceDto): Promise<Pieces> {
-    let res: Promise<Pieces>;
     try {
-      res = this.prismaService.pieces.update({
+      const res = await this.prismaService.pieces.update({
         where: {
           id: id,
         },
@@ -87,16 +85,15 @@ export class PiecesService {
           arPath: data.arPath,
         },
       });
+      return res;
     } catch (error) {
       handlePrismaError(error);
     }
-    return res;
   }
 
-  async deletePiece(id: number): Promise<Pieces> {
-    let res: Promise<Pieces>;
+  async deletePiece(id: number) {
     try {
-      res = this.prismaService.pieces.delete({
+      await this.prismaService.pieces.delete({
         where: {
           id: id,
         },
@@ -104,6 +101,5 @@ export class PiecesService {
     } catch (error) {
       handlePrismaError(error);
     }
-    return res;
   }
 }

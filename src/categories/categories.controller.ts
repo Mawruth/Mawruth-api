@@ -13,7 +13,12 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { CategoriesService } from './categories.service';
 import { PaginationDto } from './dto/pagination.dto';
@@ -40,12 +45,13 @@ export class CategoriesController {
   })
   @ApiBearerAuth()
   @UseInterceptors(FileInterceptor('image'))
+  @ApiConsumes('multipart/form-data')
   async createCategory(
     @Body() createCategoryDto: CreateCategoryDto,
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
-          fileType: 'jpeg',
+          fileType: 'png',
         })
         .build({
           errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,

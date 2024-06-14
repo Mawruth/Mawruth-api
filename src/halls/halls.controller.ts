@@ -29,7 +29,9 @@ import { Response, Request } from 'express';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { UserTypeGuard } from 'src/guards/user-type.guard';
 import { UserTypes } from 'src/decorators/userTypes.decorator';
+import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('halls')
 @Controller('halls')
 export class HallsController {
   constructor(
@@ -41,12 +43,13 @@ export class HallsController {
   @UseInterceptors(FileInterceptor('image'))
   @UseGuards(AuthGuard, UserTypeGuard)
   @UserTypes('SUPPER_ADMIN', 'MUSEUMS_ADMIN')
+  @ApiConsumes('multipart/form-data')
   async createHall(
     @Body() hallDto: CreateHallDto,
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
-          fileType: 'jpeg',
+          fileType: 'png',
         })
         .build({
           errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
@@ -55,7 +58,7 @@ export class HallsController {
     file: Express.Multer.File,
   ) {
     const imageName = await this.azureService.uploadFile(file, 'Hall');
-    hallDto.image_path = this.azureService.getBlobUrl(imageName);
+    hallDto.image = this.azureService.getBlobUrl(imageName);
     return await this.hallsService.createHall(hallDto);
   }
 
