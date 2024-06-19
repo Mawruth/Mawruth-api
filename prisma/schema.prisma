@@ -40,6 +40,7 @@ model Museums {
   images      MuseumsImages[]
   halls       Halls[]
   categories  MuseumsCategories[]
+  museums_favorites MuseumsFavorites[]
 
   @@map("museums")
 }
@@ -79,6 +80,7 @@ model Pieces {
   hallId        Int
   hall          Halls          @relation(fields: [hallId], references: [id], onDelete: Cascade)
   image         String
+  pieces_favorites PiecesFavorites[]
 
   @@map("pieces")
 }
@@ -106,6 +108,8 @@ model Users {
   otp_expire_at  DateTime?
   active         Boolean   @default(false)
   reviews        MuseumReviews[]
+  museums_favorites MuseumsFavorites[]
+  pieces_favorites PiecesFavorites[]
 
   @@index([otp, otp_expire_at])
   @@map("users")
@@ -125,4 +129,27 @@ model MuseumReviews {
   content   String
   museum    Museums   @relation(fields: [museumId], references: [id], onDelete: Cascade)
   user      Users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model MuseumsFavorites {
+  id  Int @id @default(autoincrement())
+  userId Int
+  user Users @relation(fields: [userId], references: [id], onDelete: Cascade)
+  museumId  Int
+  museum Museums @relation(fields: [museumId], references: [id], onDelete: Cascade)
+
+  @@map("museums_favorites")
+  @@index([userId,museumId])
+}
+
+
+model PiecesFavorites {
+  id  Int @id @default(autoincrement())
+  userId Int
+  user Users @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pieceId  Int
+  piece Pieces @relation(fields: [pieceId], references: [id], onDelete: Cascade)
+
+  @@map("piece_favorites")
+  @@index([userId,pieceId])
 }

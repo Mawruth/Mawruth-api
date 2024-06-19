@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 
-export function handlePrismaError(error: Prisma.PrismaClientKnownRequestError) {
+export function handlePrismaError(error: any) {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     switch (error.code) {
       case 'P2002':
@@ -22,5 +22,7 @@ export function handlePrismaError(error: Prisma.PrismaClientKnownRequestError) {
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
     }
+  } else {
+    throw error;
   }
 }

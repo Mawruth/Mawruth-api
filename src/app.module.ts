@@ -22,6 +22,7 @@ import { MuseumReviewsModule } from './museum-reviews/museum-reviews.module';
 import azureConfig from './config/azure.config';
 import { AzureBlobService } from './services/azure-blob.service';
 import { HallsModule } from './halls/halls.module';
+import { FavoritesModule } from './favorites/favorites.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { HallsModule } from './halls/halls.module';
     PiecesModule,
     MuseumReviewsModule,
     HallsModule,
+    FavoritesModule,
   ],
   controllers: [AppController, CategoriesController],
   providers: [
