@@ -6,4 +6,4 @@ import { CharactersController } from './characters.controller';
   controllers: [CharactersController],
   providers: [CharactersService],
 })
-export class AdvertisementsModule { }
+export class CharactersModule { }
