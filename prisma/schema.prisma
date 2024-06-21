@@ -41,6 +41,7 @@ model Museums {
   halls       Halls[]
   categories  MuseumsCategories[]
   museums_favorites MuseumsFavorites[]
+  museums_admins MuseumsAdmins[]
 
   @@map("museums")
 }
@@ -111,9 +112,19 @@ model Users {
   reviews        MuseumReviews[]
   museums_favorites MuseumsFavorites[]
   pieces_favorites PiecesFavorites[]
+  museums_admins MuseumsAdmins[]
 
   @@index([otp, otp_expire_at])
   @@map("users")
+}
+
+model MuseumsAdmins {
+  id Int @id @default(autoincrement())
+  userId Int
+  user Users @relation(fields: [userId], references: [id], onDelete: Cascade)
+  museumId Int
+  museum Museums @relation(fields: [museumId], references: [id], onDelete: Cascade)
+  @@map("museums_admins")
 }
 
 enum UserType {
