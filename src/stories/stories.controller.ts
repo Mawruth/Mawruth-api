@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, UseInterceptors, UploadedFiles, ParseFilePipe, ParseFilePipeBuilder, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, UseInterceptors, UploadedFiles, ParseFilePipe, ParseFilePipeBuilder, HttpStatus, UploadedFile } from '@nestjs/common';
 import { StoriesService } from './stories.service';
 import { CreateStoryDto } from './dto/create-story.dto';
 import { UpdateStoryDto } from './dto/update-story.dto';
@@ -35,29 +35,28 @@ export class StoriesController {
     ],
   })
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('images'))
+  @UseInterceptors(FileInterceptor('image'))
   @Post()
   async create(
     @Param('id') museumId: number,
     @Body() createStoryDto: CreateStoryDto,
-    @UploadedFiles(
+    @UploadedFile(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
-          fileType: 'jpeg',
+          fileType: /(png|jpeg|jpg)/,
         })
         .build({
           errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
         }),
     )
-    files: Array<Express.Multer.File>,
+    file?: Express.Multer.File,
   ): Promise<Stories> {
-    const promiseImage = files.map(async (image) => {
-      const imageName = await this.azureService.uploadFile(image, 'Story');
-      return this.azureService.getBlobUrl(imageName);
-    });
-    const images = await Promise.all(promiseImage);
-    createStoryDto.image = images[0];
-    createStoryDto.museumId = museumId;
+    if (file) {
+      const imageName = await this.azureService.uploadFile(file, 'Story');
+      const imageUrl = this.azureService.getBlobUrl(imageName);
+      createStoryDto.image = imageUrl;
+    }
+    createStoryDto.museumId = +museumId;
     return await this.storiesService.create(createStoryDto);
   }
 
@@ -75,10 +74,10 @@ export class StoriesController {
   })
   @Get()
   async findAll(
-    @Param() id: number,
+    @Param("id") id: number,
     @Query() pagination: Pagination
   ): Promise<Stories[]> {
-    return this.storiesService.findAll(id, pagination);
+    return this.storiesService.findAll(+id, pagination);
   }
 
   @ApiOperation({
@@ -105,7 +104,7 @@ export class StoriesController {
     @Param('id') museumId: number,
     @Param('storyId') id: number,
   ): Promise<Stories> {
-    return this.storiesService.findOne(id, museumId);
+    return this.storiesService.findOne(+id, +museumId);
   }
 
   @ApiOperation({
@@ -137,24 +136,23 @@ export class StoriesController {
     @Param('id') museumId: number,
     @Param('storyId') id: number,
     @Body() updateStoryDto: UpdateStoryDto,
-    @UploadedFiles(
+    @UploadedFile(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
-          fileType: 'jpeg',
+          fileType: /(png|jpeg|jpg)/,
         })
         .build({
           errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
         }),
     )
-    files: Array<Express.Multer.File>,
+    file?: Express.Multer.File,
   ): Promise<Stories> {
-    const promiseImage = files.map(async (image) => {
-      const imageName = await this.azureService.uploadFile(image, 'Story');
-      return this.azureService.getBlobUrl(imageName);
-    });
-    const images = await Promise.all(promiseImage);
-    updateStoryDto.image = images[0];
-    return this.storiesService.update(id, museumId, updateStoryDto);
+    if (file) {
+      const imageName = await this.azureService.uploadFile(file, 'Story');
+      const imageUrl = this.azureService.getBlobUrl(imageName);
+      updateStoryDto.image = imageUrl;
+    }
+    return this.storiesService.update(+id, +museumId, updateStoryDto);
   }
 
   @ApiOperation({
@@ -184,6 +182,6 @@ export class StoriesController {
     @Param('id') museumId: number,
     @Param('storyId') id: number,
   ): Promise<Stories> {
-    return this.storiesService.remove(id, museumId);
+    return this.storiesService.remove(+id, +museumId);
   }
 }
