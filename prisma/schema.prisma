@@ -59,6 +59,7 @@ model Halls {
   name        String
   description String
   soundPath   String?
+  soundImage  String?
   image_path  String?
   museum_id   Int
   museum      Museums         @relation(fields: [museum_id], references: [id], onDelete: Cascade)

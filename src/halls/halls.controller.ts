@@ -15,13 +15,17 @@ import {
   Res,
   StreamableFile,
   UploadedFile,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { HallsService } from './halls.service';
 import { AzureBlobService } from 'src/services/azure-blob.service';
 import { CreateHallDto } from './dto/create-hall.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  FileFieldsInterceptor,
+  FileInterceptor,
+} from '@nestjs/platform-express';
 import { MuseumIdDto } from 'src/museums/dto/museum-id.dto';
 import { FindHallsDto } from './dto/find-halls.dto';
 import { HallIdDto } from './dto/hall-id.dto';
@@ -29,7 +33,8 @@ import { Response, Request } from 'express';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { UserTypeGuard } from 'src/guards/user-type.guard';
 import { UserTypes } from 'src/decorators/userTypes.decorator';
-import { ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { SoundHallDto } from './dto/sound-hall.dto';
 
 @ApiTags('halls')
 @Controller('halls')
@@ -75,27 +80,56 @@ export class HallsController {
     return await this.hallsService.getHall(hallId.id);
   }
 
-  @Put('sound/:id')
-  @UseInterceptors(FileInterceptor('audio'))
+  @Post('sound/:id')
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'audio', maxCount: 1 },
+      { name: 'image', maxCount: 1 },
+    ]),
+  )
   @UseGuards(AuthGuard, UserTypeGuard)
   @UserTypes('SUPPER_ADMIN', 'MUSEUMS_ADMIN')
+  @ApiConsumes('multipart/form-data')
+  @ApiBearerAuth()
   async uploadSound(
-    @UploadedFile() file: Express.Multer.File,
+    @Body() soundHallDto: SoundHallDto,
+    @UploadedFiles()
+    files: { audio?: Express.Multer.File[]; image?: Express.Multer.File[] },
     @Param() hallId: HallIdDto,
   ) {
-    if (!file) {
+    if (!files.audio) {
       throw new HttpException('No file provided', HttpStatus.BAD_REQUEST);
     }
 
-    const streamFile = new StreamableFile(file.buffer);
+    const streamFile = new StreamableFile(files.audio[0].buffer);
     const audioUrl = await this.azureService.uploadStream(
       streamFile,
       'Hall-Audio',
     );
 
-    await this.hallsService.uploadHallAudio(audioUrl, hallId.id);
+    if (files.image) {
+      const imageName = await this.azureService.uploadFile(
+        files.image[0],
+        'Hall',
+      );
+      soundHallDto.image = this.azureService.getBlobUrl(imageName);
+    }
+
+    soundHallDto.hallId = hallId.id;
+    soundHallDto.audio = audioUrl;
+
+    await this.hallsService.uploadHallAudio(soundHallDto);
     return {
-      audioUrl,
+      sound: audioUrl,
+      image: soundHallDto.image,
+    };
+  }
+
+  @Delete('sound/:id')
+  async deleteHallAudio(@Param() hallId: HallIdDto) {
+    await this.hallsService.deleteHallAudio(hallId.id);
+    return {
+      message: 'audio deleted successfully',
     };
   }
 
