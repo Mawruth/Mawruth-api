@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, UseInterceptors, UploadedFiles, ParseFilePipe, ParseFilePipeBuilder, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, UseInterceptors, UploadedFiles, ParseFilePipe, ParseFilePipeBuilder, HttpStatus, UploadedFile } from '@nestjs/common';
 import { CreateAdvertisementDto } from './dto/create-advertisement.dto';
 import { UpdateAdvertisementDto } from './dto/update-advertisement.dto';
 import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -40,24 +40,23 @@ export class AdvertisementsController {
   async create(
     @Param('id') museumId: number,
     @Body() createAdvertisementDto: CreateAdvertisementDto,
-    @UploadedFiles(
+    @UploadedFile(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
-          fileType: 'jpeg',
+          fileType: /(png|jpeg|jpg)/,
         })
         .build({
           errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
         }),
     )
-    files: Array<Express.Multer.File>,
+    file?: Express.Multer.File,
   ): Promise<Advertisements> {
-    const promiseImage = files.map(async (image) => {
-      const imageName = await this.azureService.uploadFile(image, 'Advertisement');
-      return this.azureService.getBlobUrl(imageName);
-    });
-    const images = await Promise.all(promiseImage);
-    createAdvertisementDto.image = images[0];
-    createAdvertisementDto.museumId = museumId;
+    if (file) {
+      const imageName = await this.azureService.uploadFile(file, 'Advertisement');
+      const imageUrl = this.azureService.getBlobUrl(imageName);
+      createAdvertisementDto.image = imageUrl;
+    }
+    createAdvertisementDto.museumId = +museumId;
     return await this.advertisementsService.create(createAdvertisementDto);
   }
 
@@ -78,7 +77,7 @@ export class AdvertisementsController {
     @Param() id: number,
     @Query() pagination: Pagination
   ): Promise<Advertisements[]> {
-    return this.advertisementsService.findAll(id, pagination);
+    return this.advertisementsService.findAll(+id, pagination);
   }
 
   @ApiOperation({
@@ -105,7 +104,7 @@ export class AdvertisementsController {
     @Param('id') museumId: number,
     @Param('adId') id: number,
   ): Promise<Advertisements> {
-    return this.advertisementsService.findOne(id, museumId);
+    return this.advertisementsService.findOne(+id, +museumId);
   }
 
   @ApiOperation({
@@ -137,24 +136,22 @@ export class AdvertisementsController {
     @Param('id') museumId: number,
     @Param('adId') id: number,
     @Body() updateAdvertisementDto: UpdateAdvertisementDto,
-    @UploadedFiles(
+    @UploadedFile(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
-          fileType: 'jpeg',
+          fileType: /(png|jpeg|jpg)/,
         })
         .build({
           errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
         }),
     )
-    files: Array<Express.Multer.File>,
+    file?: Express.Multer.File,
   ): Promise<Advertisements> {
-    const promiseImage = files.map(async (image) => {
-      const imageName = await this.azureService.uploadFile(image, 'Advertisement');
-      return this.azureService.getBlobUrl(imageName);
-    });
-    const images = await Promise.all(promiseImage);
-    updateAdvertisementDto.image = images[0];
-    return this.advertisementsService.update(id, museumId, updateAdvertisementDto);
+    if (file) {
+      const imageName = await this.azureService.uploadFile(file, 'Advertisement');
+      updateAdvertisementDto.image = this.azureService.getBlobUrl(imageName);
+    }
+    return this.advertisementsService.update(+id, +museumId, updateAdvertisementDto);
   }
 
   @ApiOperation({
@@ -184,6 +181,6 @@ export class AdvertisementsController {
     @Param('id') museumId: number,
     @Param('adId') id: number,
   ): Promise<Advertisements> {
-    return this.advertisementsService.remove(id, museumId);
+    return this.advertisementsService.remove(+id, +museumId);
   }
 }
