@@ -4,6 +4,7 @@ import { CreateHallDto } from './dto/create-hall.dto';
 import { handlePrismaError } from 'src/utils/prisma-error.util';
 import { FindHallsDto } from './dto/find-halls.dto';
 import { PaginationUtils } from 'src/utils/pagination.utils';
+import { SoundHallDto } from './dto/sound-hall.dto';
 
 @Injectable()
 export class HallsService {
@@ -59,14 +60,31 @@ export class HallsService {
     }
   }
 
-  async uploadHallAudio(audioPath: string, hallId: number) {
+  async uploadHallAudio(soundHallDto: SoundHallDto) {
+    try {
+      await this.prismaService.halls.update({
+        where: {
+          id: soundHallDto.hallId,
+        },
+        data: {
+          soundPath: soundHallDto.audio,
+          soundImage: soundHallDto.image,
+        },
+      });
+    } catch (error) {
+      handlePrismaError(error);
+    }
+  }
+
+  async deleteHallAudio(hallId: number) {
     try {
       await this.prismaService.halls.update({
         where: {
           id: hallId,
         },
         data: {
-          soundPath: audioPath,
+          soundImage: null,
+          soundPath: null,
         },
       });
     } catch (error) {
