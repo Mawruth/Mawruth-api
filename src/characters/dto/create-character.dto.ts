@@ -14,7 +14,5 @@ export class CreateCharacterDto {
 
 	museumId?: number;
 
-	@ApiProperty()
-	@IsOptional()
 	image?: string;
 }

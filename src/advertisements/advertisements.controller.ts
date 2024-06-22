@@ -49,13 +49,12 @@ export class AdvertisementsController {
           errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
         }),
     )
-    file?: Express.Multer.File,
+    file: Express.Multer.File,
   ): Promise<Advertisements> {
-    if (file) {
-      const imageName = await this.azureService.uploadFile(file, 'Advertisement');
-      const imageUrl = this.azureService.getBlobUrl(imageName);
-      createAdvertisementDto.image = imageUrl;
-    }
+    const imageName = await this.azureService.uploadFile(file, 'Advertisement');
+    const imageUrl = this.azureService.getBlobUrl(imageName);
+    createAdvertisementDto.image = imageUrl;
+
     createAdvertisementDto.museumId = +museumId;
     return await this.advertisementsService.create(createAdvertisementDto);
   }

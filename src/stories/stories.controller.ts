@@ -49,13 +49,12 @@ export class StoriesController {
           errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
         }),
     )
-    file?: Express.Multer.File,
+    file: Express.Multer.File,
   ): Promise<Stories> {
-    if (file) {
-      const imageName = await this.azureService.uploadFile(file, 'Story');
-      const imageUrl = this.azureService.getBlobUrl(imageName);
-      createStoryDto.image = imageUrl;
-    }
+    const imageName = await this.azureService.uploadFile(file, 'Story');
+    const imageUrl = this.azureService.getBlobUrl(imageName);
+    createStoryDto.image = imageUrl;
+
     createStoryDto.museumId = +museumId;
     return await this.storiesService.create(createStoryDto);
   }
