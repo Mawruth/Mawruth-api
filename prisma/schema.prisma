@@ -14,74 +14,75 @@ datasource db {
 }
 
 model Categories {
-  id          Int           @id @default(autoincrement())
-  name        String        @unique
-  image       String?
-  museums     MuseumsCategories[]
+  id      Int                 @id @default(autoincrement())
+  name    String              @unique
+  image   String?
+  museums MuseumsCategories[]
+
   @@map("categories")
 }
 
 model MuseumsCategories {
-  id          Int         @id @default(autoincrement())
-  categoryId  Int 
-  category    Categories  @relation(fields: [categoryId], references: [id])
-  museumId    Int
-  museum      Museums     @relation(fields: [museumId], references: [id])
+  id         Int        @id @default(autoincrement())
+  categoryId Int
+  category   Categories @relation(fields: [categoryId], references: [id])
+  museumId   Int
+  museum     Museums    @relation(fields: [museumId], references: [id])
 }
 
 model Museums {
-  id          Int             @id @default(autoincrement())
-  name        String          @unique
-  description String
-  city        String
-  street      String
-  pieces      Pieces[]
-  reviews     MuseumReviews[]
-  images      MuseumsImages[]
-  halls       Halls[]
-  categories  MuseumsCategories[]
+  id                Int                 @id @default(autoincrement())
+  name              String              @unique
+  description       String
+  city              String
+  street            String
+  pieces            Pieces[]
+  reviews           MuseumReviews[]
+  images            MuseumsImages[]
+  halls             Halls[]
+  categories        MuseumsCategories[]
   museums_favorites MuseumsFavorites[]
-  museums_admins MuseumsAdmins[]
+  museums_admins    MuseumsAdmins[]
 
   @@map("museums")
 }
 
 model MuseumsImages {
-  id          Int             @id @default(autoincrement())
-  image_path  String
-  museum_id   Int
-  museum      Museums         @relation(fields: [museum_id], references: [id], onDelete: Cascade)
+  id         Int     @id @default(autoincrement())
+  image_path String
+  museum_id  Int
+  museum     Museums @relation(fields: [museum_id], references: [id], onDelete: Cascade)
 
   @@map("museums_images")
 }
 
 model Halls {
-  id          Int             @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   name        String
   description String
   soundPath   String?
   soundImage  String?
   image_path  String?
   museum_id   Int
-  museum      Museums         @relation(fields: [museum_id], references: [id], onDelete: Cascade)
+  museum      Museums  @relation(fields: [museum_id], references: [id], onDelete: Cascade)
   pieces      Pieces[]
 
   @@map("halls")
 }
 
 model Pieces {
-  id            Int             @id @default(autoincrement())
-  name          String
-  description   String?
-  isMasterpiece Boolean
-  age           String
-  museumId      Int
-  arPath        String?
-  soundPath     String?
-  museum        Museums        @relation(fields: [museumId], references: [id], onDelete: Cascade)
-  hallId        Int
-  hall          Halls          @relation(fields: [hallId], references: [id], onDelete: Cascade)
-  image         String
+  id               Int               @id @default(autoincrement())
+  name             String
+  description      String?
+  isMasterpiece    Boolean
+  age              String
+  museumId         Int
+  arPath           String?
+  soundPath        String?
+  museum           Museums           @relation(fields: [museumId], references: [id], onDelete: Cascade)
+  hallId           Int
+  hall             Halls             @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  image            String
   pieces_favorites PiecesFavorites[]
 
   @@map("pieces")
@@ -97,33 +98,34 @@ model Pieces {
 // }
 
 model Users {
-  id             Int       @id @default(autoincrement())
-  name           String
-  email          String    @unique
-  username       String    @unique
-  password       String
-  image          String?
-  type           UserType  @default(USER)
-  otp            String?
-  otp_verified   Boolean   @default(false)
-  otp_created_at DateTime?
-  otp_expire_at  DateTime?
-  active         Boolean   @default(false)
-  reviews        MuseumReviews[]
+  id                Int                @id @default(autoincrement())
+  name              String
+  email             String             @unique
+  username          String             @unique
+  password          String
+  image             String?
+  type              UserType           @default(USER)
+  otp               String?
+  otp_verified      Boolean            @default(false)
+  otp_created_at    DateTime?
+  otp_expire_at     DateTime?
+  active            Boolean            @default(false)
+  reviews           MuseumReviews[]
   museums_favorites MuseumsFavorites[]
-  pieces_favorites PiecesFavorites[]
-  museums_admins MuseumsAdmins[]
+  pieces_favorites  PiecesFavorites[]
+  museums_admins    MuseumsAdmins[]
 
   @@index([otp, otp_expire_at])
   @@map("users")
 }
 
 model MuseumsAdmins {
-  id Int @id @default(autoincrement())
-  userId Int
-  user Users @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id       Int     @id @default(autoincrement())
+  userId   Int
+  user     Users   @relation(fields: [userId], references: [id], onDelete: Cascade)
   museumId Int
-  museum Museums @relation(fields: [museumId], references: [id], onDelete: Cascade)
+  museum   Museums @relation(fields: [museumId], references: [id], onDelete: Cascade)
+
   @@map("museums_admins")
 }
 
@@ -134,34 +136,63 @@ enum UserType {
 }
 
 model MuseumReviews {
-  id        Int       @id @default(autoincrement())
-  museumId  Int
-  userId    Int
-  rating    Float
-  content   String
-  museum    Museums   @relation(fields: [museumId], references: [id], onDelete: Cascade)
-  user      Users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id       Int     @id @default(autoincrement())
+  museumId Int
+  userId   Int
+  rating   Float
+  content  String
+  museum   Museums @relation(fields: [museumId], references: [id], onDelete: Cascade)
+  user     Users   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model MuseumsFavorites {
-  id  Int @id @default(autoincrement())
-  userId Int
-  user Users @relation(fields: [userId], references: [id], onDelete: Cascade)
-  museumId  Int
-  museum Museums @relation(fields: [museumId], references: [id], onDelete: Cascade)
+  id       Int     @id @default(autoincrement())
+  userId   Int
+  user     Users   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  museumId Int
+  museum   Museums @relation(fields: [museumId], references: [id], onDelete: Cascade)
 
+  @@index([userId, museumId])
   @@map("museums_favorites")
-  @@index([userId,museumId])
 }
 
-
 model PiecesFavorites {
-  id  Int @id @default(autoincrement())
-  userId Int
-  user Users @relation(fields: [userId], references: [id], onDelete: Cascade)
-  pieceId  Int
-  piece Pieces @relation(fields: [pieceId], references: [id], onDelete: Cascade)
+  id      Int    @id @default(autoincrement())
+  userId  Int
+  user    Users  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pieceId Int
+  piece   Pieces @relation(fields: [pieceId], references: [id], onDelete: Cascade)
 
+  @@index([userId, pieceId])
   @@map("piece_favorites")
-  @@index([userId,pieceId])
+}
+
+model Stories {
+  id       Int     @id @default(autoincrement())
+  name     String
+  content  String
+  image    String?
+  museumId Int
+
+  @@map("stories")
+}
+
+model Characters {
+  id       Int     @id @default(autoincrement())
+  name     String
+  content  String
+  image    String?
+  museumId Int
+
+  @@map("characters")
+}
+
+model Advertisements {
+  id       Int     @id @default(autoincrement())
+  name     String
+  content  String
+  image    String?
+  museumId Int
+
+  @@map("advertisements")
 }

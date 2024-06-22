@@ -23,6 +23,7 @@ import azureConfig from './config/azure.config';
 import { AzureBlobService } from './services/azure-blob.service';
 import { HallsModule } from './halls/halls.module';
 import { FavoritesModule } from './favorites/favorites.module';
+import { StoriesModule } from './stories/stories.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { FavoritesModule } from './favorites/favorites.module';
     MuseumReviewsModule,
     HallsModule,
     FavoritesModule,
+    StoriesModule,
   ],
   controllers: [AppController, CategoriesController],
   providers: [
