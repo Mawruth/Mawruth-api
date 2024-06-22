@@ -35,7 +35,7 @@ export class CharactersController {
     ],
   })
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('images'))
+  @UseInterceptors(FileInterceptor('image'))
   @Post()
   async create(
     @Param('id') museumId: number,

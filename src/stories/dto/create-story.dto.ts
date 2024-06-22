@@ -12,8 +12,6 @@ export class CreateStoryDto {
 	@IsNotEmpty()
 	content: string;
 
-	@ApiProperty()
-	@IsNumber()
 	museumId?: number;
 
 	@ApiProperty()

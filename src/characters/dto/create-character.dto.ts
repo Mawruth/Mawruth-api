@@ -12,8 +12,6 @@ export class CreateCharacterDto {
 	@IsNotEmpty()
 	content: string;
 
-	@ApiProperty()
-	@IsNumber()
 	museumId?: number;
 
 	@ApiProperty()

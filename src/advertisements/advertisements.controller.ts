@@ -127,7 +127,7 @@ export class AdvertisementsController {
     ],
   })
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('images'))
+  @UseInterceptors(FileInterceptor('image'))
   @ApiBearerAuth()
   @UseGuards(AuthGuard, UserTypeGuard)
   @UserTypes('SUPPER_ADMIN')
