@@ -14,7 +14,5 @@ export class CreateAdvertisementDto {
 
 	museumId?: number;
 
-	@ApiProperty()
-	@IsOptional()
 	image?: string;
 }

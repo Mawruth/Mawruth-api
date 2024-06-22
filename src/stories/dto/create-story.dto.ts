@@ -14,7 +14,5 @@ export class CreateStoryDto {
 
 	museumId?: number;
 
-	@ApiProperty()
-	@IsOptional()
 	image?: string;
 }
