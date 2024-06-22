@@ -12,8 +12,6 @@ export class CreateAdvertisementDto {
 	@IsNotEmpty()
 	content: string;
 
-	@ApiProperty()
-	@IsNumber()
 	museumId?: number;
 
 	@ApiProperty()
