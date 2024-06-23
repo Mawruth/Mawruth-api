@@ -151,6 +151,25 @@ export class MuseumsService {
     });
   }
 
+  async deleteMuseumImages(museumId: number, imageUrls: string[]): Promise<void> {
+    const imagesToDelete = await this.prismaService.museumsImages.findMany({
+      where: {
+        museum_id: museumId,
+        image_path: {
+          in: imageUrls,
+        },
+      },
+    });
+  
+    await this.prismaService.museumsImages.deleteMany({
+      where: {
+        id: {
+          in: imagesToDelete.map((image) => image.id),
+        },
+      },
+    });
+  }
+
   async editMuseum(id: number, data: UpdateMuseumDto): Promise<Museums> {
     let res: Promise<Museums>;
     try {
