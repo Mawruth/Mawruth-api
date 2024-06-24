@@ -25,9 +25,9 @@ model Categories {
 model MuseumsCategories {
   id         Int        @id @default(autoincrement())
   categoryId Int
-  category   Categories @relation(fields: [categoryId], references: [id])
+  category   Categories @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   museumId   Int
-  museum     Museums    @relation(fields: [museumId], references: [id])
+  museum     Museums    @relation(fields: [museumId], references: [id], onDelete: Cascade)
 }
 
 model Museums {
