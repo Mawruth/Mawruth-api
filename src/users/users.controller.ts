@@ -88,9 +88,7 @@ export class UsersController {
   async createUser(@Body() userData: CreateUserDto, @Request() req) {
     if (req.user.type === UserType.MUSEUMS_ADMIN) {
       userData.museumId = req.user.museum;
-    } else {
-      userData.museumId = null;
-    }
+    } 
 
     return await this.userService.createUser(userData);
   }
