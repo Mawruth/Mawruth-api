@@ -33,6 +33,7 @@ import { UserTypeGuard } from 'src/guards/user-type.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AzureBlobService } from 'src/services/azure-blob.service';
 import { ImageUploadDto } from 'src/shared/dto/File-upload.dto';
+import { UserType } from '@prisma/client';
 
 @ApiTags('users')
 @ApiBearerAuth()
@@ -47,6 +48,7 @@ export class UsersController {
   @ApiOperation({
     summary: 'Get my profile',
   })
+  @UserTypes('MUSEUMS_ADMIN', 'SUPPER_ADMIN', 'USER')
   getMe(@Request() req) {
     return req.user;
   }
@@ -75,15 +77,21 @@ export class UsersController {
 
   @Put('remove-image')
   async removeImage(@Request() req) {
-    return await this.userService.updateImage(req.user.id, '');
+    return await this.userService.updateImage(req.user.id, null);
   }
 
   @Post()
-  @UserTypes('SUPPER_ADMIN')
+  @UserTypes('SUPPER_ADMIN', 'MUSEUMS_ADMIN')
   @ApiOperation({
     summary: 'Create new user',
   })
-  async createUser(@Body() userData: CreateUserDto) {
+  async createUser(@Body() userData: CreateUserDto, @Request() req) {
+    if (req.user.type === UserType.MUSEUMS_ADMIN) {
+      userData.museumId = req.user.museum;
+    } else {
+      userData.museumId = null;
+    }
+
     return await this.userService.createUser(userData);
   }
 
@@ -109,15 +117,23 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @UserTypes('SUPPER_ADMIN')
+  @UserTypes('SUPPER_ADMIN', 'MUSEUMS_ADMIN')
   @ApiOperation({
     summary: 'Change user type',
   })
   async changeUserType(
     @Param() userID: UserIdDto,
     @Body() userType: ChangeUserTypeDto,
+    @Request() req,
   ) {
-    await this.userService.changeUserType(userID.id, userType.type);
+    userType.userId = userID.id;
+
+    if (req.user.type === UserType.MUSEUMS_ADMIN) {
+      userType.museumId = null;
+      userType.type = UserType.USER;
+    }
+
+    await this.userService.changeUserType(userType);
     return {
       message: `User with id ${userID.id} changed to ${userType.type} successfully`,
     };

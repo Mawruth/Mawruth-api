@@ -30,7 +30,9 @@ export class CreatePieceDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  @ApiProperty()
+  @ApiProperty({
+    required: false,
+  })
   age: string;
 
   @ApiProperty()
@@ -48,9 +50,11 @@ export class CreatePieceDto {
   @ApiProperty()
   @IsString()
   @IsOptional()
-  @ApiProperty()
+  @ApiProperty({
+    required: false,
+  })
   arPath?: string;
 
-  @ApiProperty({ type: 'string', format: 'binary' })
+  @ApiProperty({ type: 'string', format: 'binary', required: false })
   image: any;
 }
