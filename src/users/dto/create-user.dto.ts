@@ -1,8 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { UserType } from '@prisma/client';
+import { Type } from 'class-transformer';
 import {
   IsEmail,
   IsEnum,
+  IsInt,
   IsNotEmpty,
   IsString,
   MinLength,
@@ -35,4 +37,11 @@ export class CreateUserDto {
   @IsString()
   @IsEnum(['USER', 'SUPPER_ADMIN', 'MUSEUMS_ADMIN'])
   type: UserType;
+
+  @ApiProperty({
+    required: false,
+  })
+  @IsInt()
+  @Type(() => Number)
+  museumId?: number;
 }

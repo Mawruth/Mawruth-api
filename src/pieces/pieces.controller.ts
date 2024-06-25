@@ -12,6 +12,8 @@ import {
   UploadedFile,
   ParseFilePipeBuilder,
   HttpStatus,
+  Request,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { PiecesService } from './pieces.service';
 import { CreatePieceDto } from './dto/create-piece.dto';
@@ -30,6 +32,7 @@ import { MuseumIdDto } from 'src/museums/dto/museum-id.dto';
 import { PieceIdDto } from './dto/piece-id.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AzureBlobService } from 'src/services/azure-blob.service';
+import { handleMuseumPermissionError } from 'src/utils/museum-permission-error';
 
 @ApiTags('pieces')
 @Controller('pieces')
@@ -40,7 +43,7 @@ export class PiecesController {
   ) {}
 
   @UseGuards(AuthGuard, UserTypeGuard)
-  @UserTypes('SUPPER_ADMIN')
+  @UserTypes('MUSEUMS_ADMIN')
   @ApiOperation({
     summary: 'Create new piece',
   })
@@ -60,7 +63,9 @@ export class PiecesController {
         }),
     )
     file: Express.Multer.File,
+    @Request() req,
   ) {
+    handleMuseumPermissionError(createPieceDto.museumId, req.user.museum);
     const imageName = await this.azureService.uploadFile(file, 'Piece');
     const imageUrl = this.azureService.getBlobUrl(imageName);
     createPieceDto.image = imageUrl;
@@ -88,7 +93,7 @@ export class PiecesController {
   }
 
   @UseGuards(AuthGuard, UserTypeGuard)
-  @UserTypes('SUPPER_ADMIN')
+  @UserTypes('MUSEUMS_ADMIN')
   @Patch(':id')
   @ApiOperation({
     summary: 'Edit piece by id',
@@ -102,7 +107,7 @@ export class PiecesController {
   }
 
   @UseGuards(AuthGuard, UserTypeGuard)
-  @UserTypes('SUPPER_ADMIN')
+  @UserTypes('MUSEUMS_ADMIN')
   @Delete(':id')
   @ApiOperation({
     summary: 'Delete piece by id',

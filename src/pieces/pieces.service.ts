@@ -51,7 +51,8 @@ export class PiecesService {
           id: 'desc',
         },
       });
-      return res;
+
+      return res.length > 0 ? res : null;
     } catch (error) {
       handlePrismaError(error);
     }
