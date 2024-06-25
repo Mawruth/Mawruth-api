@@ -52,7 +52,7 @@ export class MuseumsController {
 
   @UseGuards(AuthGuard, UserTypeGuard)
   @ApiBearerAuth()
-  @UserTypes('SUPPER_ADMIN')
+  @UserTypes('SUPPER_ADMIN', 'MUSEUMS_ADMIN')
   @Post('upload-images')
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FilesInterceptor('images'))
@@ -96,7 +96,6 @@ export class MuseumsController {
     summary: 'Get museum by id',
   })
   async getById(@Param() museumId: MuseumIdDto) {
-    console.log(museumId.id);
     return await this.service.getMuseumById(museumId.id);
   }
 

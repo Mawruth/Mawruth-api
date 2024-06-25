@@ -28,7 +28,7 @@ export class MuseumsService {
           },
         ];
       }
-      const museums = await this.prismaService.museums.findMany({
+      const res = await this.prismaService.museums.findMany({
         skip,
         take: limit,
         where,
@@ -50,6 +50,12 @@ export class MuseumsService {
           },
         },
       });
+
+      const museums = res.map((item) => ({
+        ...item,
+        images: item.images.length > 0 ? item.images : null,
+        categories: item.categories.length > 0 ? item.categories : null,
+      }));
 
       return museums;
     } catch (error) {
@@ -82,7 +88,13 @@ export class MuseumsService {
         },
       });
 
-      return res;
+      const museum = {
+        ...res,
+        images: res.images.length > 0 ? res.images : null,
+        categories: res.categories.length > 0 ? res.categories : null,
+      };
+
+      return museum;
     } catch (error) {
       handlePrismaError(error);
     }

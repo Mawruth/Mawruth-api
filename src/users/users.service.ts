@@ -8,6 +8,7 @@ import { handlePrismaError } from 'src/utils/prisma-error.util';
 import { FindUserQueryDto } from './dto/find-users-query.dto';
 import { Prisma, UserType } from '@prisma/client';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { ChangeUserTypeDto } from './dto/change-user-type.dto';
 
 @Injectable()
 export class UsersService {
@@ -19,6 +20,11 @@ export class UsersService {
 
   async createUser(userDto: CreateUserDto) {
     const { name, username, email, password, type } = userDto;
+
+    if (type == UserType.MUSEUMS_ADMIN && !userDto.museumId) {
+      throw new BadRequestException('You must add museum id');
+    }
+
     const user = await this.prisma.users.findMany({
       where: {
         OR: [{ email }, { username }],
@@ -30,21 +36,28 @@ export class UsersService {
     }
     const hashedPassword = await this.authUtils.hashPassword(password);
 
-    const otp = OtpUtils.generateOtp();
-    await this.prisma.users.create({
+    // const otp = OtpUtils.generateOtp();
+    const newUser = await this.prisma.users.create({
       data: {
         name,
         username,
         email,
         password: hashedPassword,
         type,
-        otp,
-        otp_created_at: new Date(Date.now()).toISOString(),
-        otp_expire_at: new Date(Date.now() + 1000 * 60 * 30).toISOString(),
+        active: true,
       },
     });
 
-    await this.emailService.sendActiveOtp(email, otp);
+    if (type == UserType.MUSEUMS_ADMIN && userDto.museumId) {
+      await this.prisma.museumsAdmins.create({
+        data: {
+          userId: newUser.id,
+          museumId: userDto.museumId,
+        },
+      });
+    }
+
+    // await this.emailService.sendActiveOtp(email, otp);
 
     return {
       message: 'User created successfully',
@@ -103,16 +116,35 @@ export class UsersService {
     });
   }
 
-  async changeUserType(userId: number, type: UserType) {
+  async changeUserType(userDto: ChangeUserTypeDto) {
     try {
+      if (userDto.type == UserType.MUSEUMS_ADMIN && !userDto.museumId) {
+        throw new BadRequestException('You must add museum id');
+      }
+
       await this.prisma.users.update({
         where: {
-          id: userId,
+          id: userDto.userId,
         },
         data: {
-          type,
+          type: userDto.type,
         },
       });
+
+      if (userDto.type == UserType.MUSEUMS_ADMIN && userDto.museumId) {
+        await this.prisma.museumsAdmins.create({
+          data: {
+            userId: userDto.userId,
+            museumId: userDto.museumId,
+          },
+        });
+      } else if (userDto.type == UserType.MUSEUMS_ADMIN) {
+        await this.prisma.museumsAdmins.deleteMany({
+          where: {
+            userId: userDto.userId,
+          },
+        });
+      }
     } catch (error) {
       handlePrismaError(error);
     }

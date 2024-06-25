@@ -28,13 +28,15 @@ export class HallsService {
   async getMuseumHalls(query: FindHallsDto, museum_id: number) {
     const pagination = PaginationUtils.pagination(query.page, query.limit);
     try {
-      return await this.prismaService.halls.findMany({
+      const res = await this.prismaService.halls.findMany({
         where: {
           museum_id,
         },
         take: pagination.take,
         skip: pagination.skip,
       });
+
+      return res.length > 0 ? res : null;
     } catch (error) {
       handlePrismaError(error);
     }
