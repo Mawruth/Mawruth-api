@@ -48,7 +48,7 @@ export class UsersService {
       },
     });
 
-    if (type == UserType.MUSEUMS_ADMIN && userDto.museumId) {
+    if ((type == UserType.MUSEUMS_ADMIN || type == UserType.SUPPER_ADMIN) && userDto.museumId) {
       await this.prisma.museumsAdmins.create({
         data: {
           userId: newUser.id,
