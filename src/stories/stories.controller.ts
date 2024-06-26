@@ -1,8 +1,27 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, UseInterceptors, UploadedFiles, ParseFilePipe, ParseFilePipeBuilder, HttpStatus, UploadedFile } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+  UseInterceptors,
+  ParseFilePipeBuilder,
+  HttpStatus,
+  UploadedFile,
+} from '@nestjs/common';
 import { StoriesService } from './stories.service';
 import { CreateStoryDto } from './dto/create-story.dto';
 import { UpdateStoryDto } from './dto/update-story.dto';
-import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { UserTypeGuard } from 'src/guards/user-type.guard';
 import { UserTypes } from 'src/decorators/userTypes.decorator';
@@ -17,7 +36,7 @@ export class StoriesController {
   constructor(
     private readonly storiesService: StoriesService,
     private readonly azureService: AzureBlobService,
-  ) { }
+  ) {}
 
   @ApiBearerAuth()
   @UseGuards(AuthGuard, UserTypeGuard)
@@ -73,8 +92,8 @@ export class StoriesController {
   })
   @Get()
   async findAll(
-    @Param("id") id: number,
-    @Query() pagination: Pagination
+    @Param('id') id: number,
+    @Query() pagination: Pagination,
   ): Promise<Stories[]> {
     return this.storiesService.findAll(+id, pagination);
   }
@@ -95,7 +114,7 @@ export class StoriesController {
         description: 'Story id',
         required: true,
         schema: { type: 'number' },
-      }
+      },
     ],
   })
   @Get(':storyId')
@@ -122,7 +141,7 @@ export class StoriesController {
         description: 'Story id',
         required: true,
         schema: { type: 'number' },
-      }
+      },
     ],
   })
   @ApiConsumes('multipart/form-data')
@@ -170,7 +189,7 @@ export class StoriesController {
         description: 'Story id',
         required: true,
         schema: { type: 'number' },
-      }
+      },
     ],
   })
   @ApiBearerAuth()

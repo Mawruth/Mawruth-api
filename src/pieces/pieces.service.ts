@@ -33,6 +33,7 @@ export class PiecesService {
 
   async getAllPieces(query: FindPieceDto, museumId: number): Promise<Pieces[]> {
     const pagination = PaginationUtils.pagination(query.page, query.limit);
+    const user_id = query.user_id;
     try {
       const where: Prisma.PiecesWhereInput = {};
       where.museumId = museumId;
@@ -52,7 +53,26 @@ export class PiecesService {
         },
       });
 
-      return res.length > 0 ? res : null;
+      let piecesFav: number[] = [];
+
+      if (user_id) {
+        const favRes = await this.prismaService.piecesFavorites.findMany({
+          where: {
+            userId: user_id,
+          },
+        });
+
+        piecesFav = favRes.map((item) => item.pieceId);
+      }
+
+      if (res.length == 0) return null;
+
+      const pieces = res.map((item) => ({
+        ...item,
+        isFavorite: piecesFav.includes(item.id) ? true : false,
+      }));
+
+      return pieces.length > 0 ? pieces : null;
     } catch (error) {
       handlePrismaError(error);
     }
