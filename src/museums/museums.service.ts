@@ -16,6 +16,7 @@ export class MuseumsService {
       const page = query.page || 1;
       const limit = query.limit || 50;
       const skip = (page - 1) * limit;
+      const user_id = query.user_id;
 
       const where: Prisma.MuseumsWhereInput = {};
       if (query.name || query.city) {
@@ -51,10 +52,23 @@ export class MuseumsService {
         },
       });
 
+      let museumsFav: number[] = [];
+
+      if (user_id) {
+        const favRes = await this.prismaService.museumsFavorites.findMany({
+          where: {
+            userId: user_id,
+          },
+        });
+
+        museumsFav = favRes.map((item) => item.museumId);
+      }
+      
       const museums = res.map((item) => ({
         ...item,
         images: item.images.length > 0 ? item.images : null,
         categories: item.categories.length > 0 ? item.categories : null,
+        isFavorite: museumsFav.includes(item.id) ? true : false,
       }));
 
       return museums;
