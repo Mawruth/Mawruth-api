@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsInt, IsOptional, IsString } from 'class-validator';
 import { Pagination } from 'src/shared/dto/pagination';
 
 export class FindPieceDto extends Pagination {
@@ -9,4 +10,12 @@ export class FindPieceDto extends Pagination {
   @IsString()
   @IsOptional()
   name?: string;
+
+  @ApiProperty({
+    required: false,
+  })
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  user_id?: number;
 }
