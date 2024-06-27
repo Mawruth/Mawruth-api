@@ -29,7 +29,7 @@ import { FindMuseumQueryDto } from './dto/find-museum-query.dto';
 import { MuseumIdDto } from './dto/museum-id.dto';
 import { AzureBlobService } from 'src/services/azure-blob.service';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { UploadMuseumImagesDto } from './dto/upload-images.dto';
+import { DeleteMuseumImagesDto, UploadMuseumImagesDto } from './dto/upload-images.dto';
 
 @ApiTags('museums')
 @Controller('museums')
@@ -124,6 +124,23 @@ export class MuseumsController {
     await this.service.deleteMuseum(museumId.id);
     return {
       message: 'museum deleted successfully',
+    };
+  }
+
+  @UseGuards(AuthGuard, UserTypeGuard)
+  @UserTypes('SUPPER_ADMIN')
+  @Delete('/remove-images/:id')
+  @ApiOperation({
+    summary: 'Delete museum image by its path based on id',
+  })
+  @ApiBearerAuth()
+  async deleteMuseumImages(
+    @Param() museumId: MuseumIdDto,
+    @Query() imageUrls: DeleteMuseumImagesDto,
+  ) {
+    await this.service.deleteMuseumImages(museumId.id, imageUrls.imageUrls);
+    return {
+      message: 'museum images deleted successfully',
     };
   }
 }

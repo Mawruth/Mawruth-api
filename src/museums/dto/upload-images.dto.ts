@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsInt, IsNotEmpty } from 'class-validator';
+import {  IsInt, IsNotEmpty } from 'class-validator';
 
 export class UploadMuseumImagesDto {
   @IsInt()
@@ -11,4 +11,9 @@ export class UploadMuseumImagesDto {
 
   @ApiProperty({ type: 'array', items: { type: 'string', format: 'binary' } })
   images: any[];
+}
+
+export class DeleteMuseumImagesDto {
+  @ApiProperty({ type: 'array', items: { type: 'string', format: 'string' } })
+  imageUrls: string[];
 }
