@@ -177,6 +177,25 @@ export class MuseumsService {
     });
   }
 
+  async deleteMuseumImages(museumId: number, imageUrls: string[]): Promise<void> {
+    const imagesToDelete = await this.prismaService.museumsImages.findMany({
+      where: {
+        museum_id: museumId,
+        image_path: {
+          in: imageUrls,
+        },
+      },
+    });
+  
+    await this.prismaService.museumsImages.deleteMany({
+      where: {
+        id: {
+          in: imagesToDelete.map((image) => image.id),
+        },
+      },
+    });
+  }
+
   async editMuseum(id: number, data: UpdateMuseumDto): Promise<Museums> {
     let res: Promise<Museums>;
     try {
@@ -191,6 +210,28 @@ export class MuseumsService {
           street: data.street,
         },
       });
+      await this.prismaService.museumsCategories.deleteMany({
+        where: { museumId: id },
+      });
+
+      interface CategoryId {
+        categoryId: number;
+        museumId: number;
+      }
+
+      const newAssociations = data.categories.map((catID) => {
+        {
+          const categories: CategoryId = {
+            categoryId: catID,
+            museumId: id,
+          };
+          return categories;
+      }});
+
+      await this.prismaService.museumsCategories.createMany({
+        data: newAssociations,
+      });
+
     } catch (error) {
       handlePrismaError(error);
     }
@@ -199,6 +240,10 @@ export class MuseumsService {
 
   async deleteMuseum(id: number) {
     try {
+      await this.prismaService.museumsCategories.deleteMany({
+        where: { museumId: id },
+      });
+
       await this.prismaService.museums.delete({
         where: {
           id: id,

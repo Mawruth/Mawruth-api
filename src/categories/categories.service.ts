@@ -4,6 +4,8 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { Prisma } from '@prisma/client';
 import { handlePrismaError } from 'src/utils/prisma-error.util';
 import { PaginationDto } from './dto/pagination.dto';
+import { UpdateAdvertisementDto } from 'src/advertisements/dto/update-advertisement.dto';
+import { UpdateCategoryImageDto, UpdateCategoryNameDto } from './dto/update-category.dto';
 
 @Injectable()
 export class CategoriesService {
@@ -55,7 +57,20 @@ export class CategoriesService {
     }
   }
 
-  async updateCategory(categoryId: number, categoryDto: CreateCategoryDto) {
+  async updateCategoryName(categoryId: number, categoryDto: UpdateCategoryNameDto) {
+    try {
+      await this.prisma.categories.update({
+        where: {
+          id: categoryId,
+        },
+        data: categoryDto,
+      });
+    } catch (error) {
+      handlePrismaError(error);
+    }
+  }
+
+  async updateCategoryImage(categoryId: number, categoryDto: UpdateCategoryImageDto) {
     try {
       await this.prisma.categories.update({
         where: {

@@ -28,6 +28,7 @@ import { UserTypes } from 'src/decorators/userTypes.decorator';
 import { CategoryIdDto } from './dto/category-id.dto';
 import { AzureBlobService } from 'src/services/azure-blob.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { UpdateCategoryImageDto, UpdateCategoryNameDto } from './dto/update-category.dto';
 
 @ApiTags('categories')
 @Controller('categories')
@@ -90,20 +91,75 @@ export class CategoriesController {
     };
   }
 
-  @Put(':id')
+  @Put('update-name/:id')
   @UseGuards(AuthGuard, UserTypeGuard)
+  @ApiBearerAuth()
   @UserTypes('SUPPER_ADMIN')
   @ApiOperation({
-    summary: 'Update category by id',
+    summary: 'Update category name by id',
   })
   @ApiBearerAuth()
-  async updateCategory(
-    @Body() categoryDto: CreateCategoryDto,
+  async updateCategoryName(
+    @Body() categoryDto: UpdateCategoryNameDto,
     @Param() categoryId: CategoryIdDto,
   ) {
-    return await this.categoriesService.updateCategory(
+    await this.categoriesService.updateCategoryName(
       categoryId.id,
       categoryDto,
     );
+    return {
+      "name":categoryDto.name
+    }
   }
+
+  @Put('update-image/:id')
+  @UseGuards(AuthGuard, UserTypeGuard)
+  @ApiBearerAuth()
+  @UserTypes('SUPPER_ADMIN')
+  @UseInterceptors(FileInterceptor('image'))
+  @ApiOperation({
+    summary: 'Update category image by id',
+  })
+  async updateCategoryImage(
+    @Body() categoryDto: UpdateCategoryImageDto,
+    @Param() categoryId: CategoryIdDto,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: 'png',
+        })
+        .build({
+          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+        }),
+    )
+    file: Express.Multer.File,
+  ) {
+    const imageName = await this.azureService.uploadFile(file, 'Category');
+    const imageUrl = this.azureService.getBlobUrl(imageName);
+    categoryDto.image = imageUrl;
+    await this.categoriesService.updateCategoryImage(
+      categoryId.id,
+      categoryDto,
+    );
+    return {
+      "imageUrl": imageUrl
+    } 
+  }
+
+  @Delete('remove-image/:id')
+  @UseGuards(AuthGuard, UserTypeGuard)
+  @ApiBearerAuth()
+  @UserTypes('SUPPER_ADMIN')
+  @ApiOperation({
+    summary: 'Delete category image by id',
+  })
+  async deleteCategoryImage(@Param() categoryId: CategoryIdDto) {
+    const categoryDto = new UpdateCategoryImageDto
+    categoryDto.image = null
+    await this.categoriesService.updateCategoryImage(categoryId.id,categoryDto);
+    return {
+      message: 'Category image deleted successfully',
+    };
+  }
+
 }
