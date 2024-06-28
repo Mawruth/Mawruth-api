@@ -24,6 +24,9 @@ import { AzureBlobService } from './services/azure-blob.service';
 import { HallsModule } from './halls/halls.module';
 import { FavoritesModule } from './favorites/favorites.module';
 import { StoriesModule } from './stories/stories.module';
+import { AdvertisementsModule } from './advertisements/advertisements.module';
+import { CharactersModule } from './characters/characters.module';
+import { CollectionsModule } from './collections/collections.module';
 
 @Module({
   imports: [
@@ -53,6 +56,9 @@ import { StoriesModule } from './stories/stories.module';
     HallsModule,
     FavoritesModule,
     StoriesModule,
+    AdvertisementsModule,
+    CharactersModule,
+    CollectionsModule,
   ],
   controllers: [AppController, CategoriesController],
   providers: [
@@ -65,4 +71,4 @@ import { StoriesModule } from './stories/stories.module';
     Logger,
   ],
 })
-export class AppModule {}
+export class AppModule { }
