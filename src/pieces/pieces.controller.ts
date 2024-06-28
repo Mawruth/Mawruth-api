@@ -40,7 +40,7 @@ export class PiecesController {
   constructor(
     private readonly pieces: PiecesService,
     private readonly azureService: AzureBlobService,
-  ) {}
+  ) { }
 
   @UseGuards(AuthGuard, UserTypeGuard)
   @UserTypes('MUSEUMS_ADMIN')

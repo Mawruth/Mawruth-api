@@ -9,7 +9,7 @@ import { PaginationUtils } from 'src/utils/pagination.utils';
 
 @Injectable()
 export class PiecesService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
 
   async createPiece(createPieceDto: CreatePieceDto): Promise<Pieces> {
     try {
@@ -37,6 +37,12 @@ export class PiecesService {
     try {
       const where: Prisma.PiecesWhereInput = {};
       where.museumId = museumId;
+      if (query.collection) {
+        where.collectionId = query.collection;
+      }
+      if (query.ar) {
+        where.arPath = { not: null };
+      }
       if (query.name) {
         where.OR = [
           {
