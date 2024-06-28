@@ -45,6 +45,12 @@ export class CreatePieceDto {
   @IsInt()
   @IsPositive()
   @Type(() => Number)
+  collectionId: number;
+
+  @ApiProperty()
+  @IsInt()
+  @IsPositive()
+  @Type(() => Number)
   hallId: number;
 
   @ApiProperty()
