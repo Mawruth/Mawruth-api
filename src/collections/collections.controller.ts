@@ -1,5 +1,24 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, ParseFilePipeBuilder, Post, Put, Query, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
-import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpStatus,
+  Param,
+  ParseFilePipeBuilder,
+  Post,
+  Put,
+  Query,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CreateCollectionDto } from './dto/create-collection.dto';
 import { CollectionsService } from './collections.service';
 import { AuthGuard } from 'src/guards/auth.guard';
@@ -7,9 +26,13 @@ import { UserTypeGuard } from 'src/guards/user-type.guard';
 import { UserTypes } from 'src/decorators/userTypes.decorator';
 import { AzureBlobService } from 'src/services/azure-blob.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { UpdateCollectionImageDto, UpdateCollectionNameDto } from './dto/update-collection.dto';
+import {
+  UpdateCollectionImageDto,
+  UpdateCollectionNameDto,
+} from './dto/update-collection.dto';
 import { Collection } from '@prisma/client';
 import { Pagination } from 'src/shared/dto/pagination';
+import { MuseumIdDto } from 'src/museums/dto/museum-id.dto';
 
 @ApiTags('collections')
 @Controller('/museums/:museumId/collections')
@@ -17,7 +40,7 @@ export class CollectionsController {
   constructor(
     private readonly service: CollectionsService,
     private readonly azureService: AzureBlobService,
-  ) { }
+  ) {}
 
   @Post()
   @UseGuards(AuthGuard, UserTypeGuard)
@@ -39,7 +62,7 @@ export class CollectionsController {
   @ApiConsumes('multipart/form-data')
   async create(
     @Body() data: CreateCollectionDto,
-    @Param('museumId') museumId,
+    @Param() museumId: MuseumIdDto,
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
@@ -54,7 +77,7 @@ export class CollectionsController {
     const imageName = await this.azureService.uploadFile(file, 'Collection');
     const imageUrl = this.azureService.getBlobUrl(imageName);
     data.image = imageUrl;
-    data.museumId = +museumId;
+    data.museumId = +museumId.id;
     const collection = await this.service.create(data);
     return collection;
   }
@@ -74,7 +97,7 @@ export class CollectionsController {
   })
   async findAll(
     @Param('museumId') museumId: number,
-    @Query() pagination: Pagination
+    @Query() pagination: Pagination,
   ): Promise<Collection[]> {
     const collections = await this.service.findAll(museumId, pagination);
     return collections;
@@ -100,12 +123,12 @@ export class CollectionsController {
         description: 'Collection id',
         required: true,
         schema: { type: 'number' },
-      }
+      },
     ],
   })
   async delete(
     @Param('museumId') museumId: number,
-    @Param('id') id: number
+    @Param('id') id: number,
   ): Promise<{ message: string }> {
     await this.service.delete(museumId, id);
     return {
@@ -133,7 +156,7 @@ export class CollectionsController {
         description: 'Collection id',
         required: true,
         schema: { type: 'number' },
-      }
+      },
     ],
   })
   @ApiBearerAuth()
@@ -142,11 +165,7 @@ export class CollectionsController {
     @Param('museumId') museumId: number,
     @Param('id') id: number,
   ): Promise<Collection> {
-    const res = await this.service.updateCollectionName(
-      museumId,
-      id,
-      name,
-    );
+    const res = await this.service.updateCollectionName(museumId, id, name);
     return res;
   }
 
@@ -171,7 +190,7 @@ export class CollectionsController {
         description: 'Collection id',
         required: true,
         schema: { type: 'number' },
-      }
+      },
     ],
   })
   async updateCollectionImage(
@@ -192,12 +211,7 @@ export class CollectionsController {
     const imageName = await this.azureService.uploadFile(file, 'Collection');
     const imageUrl = this.azureService.getBlobUrl(imageName);
     image.image = imageUrl;
-    const res = await this.service.updateCollectionImage(
-      museumId,
-      id,
-      image,
-    );
+    const res = await this.service.updateCollectionImage(museumId, id, image);
     return res;
   }
-
 }
