@@ -84,6 +84,8 @@ model Pieces {
   hall             Halls             @relation(fields: [hallId], references: [id], onDelete: Cascade)
   image            String
   pieces_favorites PiecesFavorites[]
+  collectionId     Int?
+  collection       Collection?       @relation(fields: [collectionId], references: [id], onDelete: Cascade)
 
   @@map("pieces")
 }
@@ -195,4 +197,14 @@ model Advertisements {
   museumId Int
 
   @@map("advertisements")
+}
+
+model Collection {
+  id       Int      @id @default(autoincrement())
+  name     String   @unique
+  image    String
+  Pieces   Pieces[]
+  museumId Int
+
+  @@map("collections")
 }
