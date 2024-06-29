@@ -45,7 +45,7 @@ export class CollectionsController {
 
   @Post()
   @UseGuards(AuthGuard, UserTypeGuard)
-  @UserTypes('SUPPER_ADMIN')
+  @UserTypes('SUPPER_ADMIN', 'MUSEUMS_ADMIN')
   @ApiOperation({
     summary: 'Create new collection',
   })
@@ -125,7 +125,7 @@ export class CollectionsController {
   @Delete(':collection_id')
   @UseGuards(AuthGuard, UserTypeGuard)
   @ApiBearerAuth()
-  @UserTypes('SUPPER_ADMIN')
+  @UserTypes('SUPPER_ADMIN', 'MUSEUMS_ADMIN')
   @ApiOperation({
     summary: 'Delete collection by id',
     parameters: [
@@ -158,7 +158,7 @@ export class CollectionsController {
   @Put('update-name/:collection_id')
   @UseGuards(AuthGuard, UserTypeGuard)
   @ApiBearerAuth()
-  @UserTypes('SUPPER_ADMIN')
+  @UserTypes('SUPPER_ADMIN', 'MUSEUMS_ADMIN')
   @ApiOperation({
     summary: 'Update collection name by id',
     parameters: [
@@ -191,7 +191,7 @@ export class CollectionsController {
   @Put('update-image/:collection_id')
   @UseGuards(AuthGuard, UserTypeGuard)
   @ApiBearerAuth()
-  @UserTypes('SUPPER_ADMIN')
+  @UserTypes('SUPPER_ADMIN', 'MUSEUMS_ADMIN')
   @UseInterceptors(FileInterceptor('image'))
   @ApiOperation({
     summary: 'Update collection image by id',
