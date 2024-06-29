@@ -9,7 +9,7 @@ import { UploadMuseumImagesDto } from './dto/upload-images.dto';
 
 @Injectable()
 export class MuseumsService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
 
   async getAllMuseums(query: FindMuseumQueryDto) {
     try {
@@ -28,6 +28,9 @@ export class MuseumsService {
             city: { contains: query.city, mode: 'insensitive' },
           },
         ];
+      }
+      if (query.category) {
+        where.categories = { some: { categoryId: +query.category } };
       }
       const res = await this.prismaService.museums.findMany({
         skip,
@@ -63,7 +66,7 @@ export class MuseumsService {
 
         museumsFav = favRes.map((item) => item.museumId);
       }
-      
+
       const museums = res.map((item) => ({
         ...item,
         images: item.images.length > 0 ? item.images : null,
@@ -186,7 +189,7 @@ export class MuseumsService {
         },
       },
     });
-  
+
     await this.prismaService.museumsImages.deleteMany({
       where: {
         id: {
@@ -226,7 +229,8 @@ export class MuseumsService {
             museumId: id,
           };
           return categories;
-      }});
+        }
+      });
 
       await this.prismaService.museumsCategories.createMany({
         data: newAssociations,

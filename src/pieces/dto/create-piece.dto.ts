@@ -33,6 +33,7 @@ export class CreatePieceDto {
   @ApiProperty({
     required: false,
   })
+  @IsOptional()
   age: string;
 
   @ApiProperty()
@@ -40,6 +41,14 @@ export class CreatePieceDto {
   @IsPositive()
   @Type(() => Number)
   museumId: number;
+
+  @ApiProperty({
+    required: false,
+  })
+  @IsInt()
+  @Type(() => Number)
+  @IsOptional()
+  collectionId: number;
 
   @ApiProperty()
   @IsInt()

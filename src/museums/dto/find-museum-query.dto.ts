@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional } from 'class-validator';
+import { IsIn, IsInt, IsOptional } from 'class-validator';
 import { Pagination } from 'src/shared/dto/pagination';
 
 export class FindMuseumQueryDto extends Pagination {
@@ -14,7 +14,7 @@ export class FindMuseumQueryDto extends Pagination {
     required: false,
   })
   @IsOptional()
-  category?: string;
+  category?: number;
 
   @ApiProperty({
     required: false,
