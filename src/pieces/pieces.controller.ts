@@ -40,10 +40,10 @@ export class PiecesController {
   constructor(
     private readonly pieces: PiecesService,
     private readonly azureService: AzureBlobService,
-  ) { }
+  ) {}
 
   @UseGuards(AuthGuard, UserTypeGuard)
-  @UserTypes('MUSEUMS_ADMIN')
+  @UserTypes('SUPPER_ADMIN', 'MUSEUMS_ADMIN')
   @ApiOperation({
     summary: 'Create new piece',
   })
@@ -65,7 +65,7 @@ export class PiecesController {
     file: Express.Multer.File,
     @Request() req,
   ) {
-    handleMuseumPermissionError(createPieceDto.museumId, req.user.museum);
+    // handleMuseumPermissionError(createPieceDto.museumId, req.user.museum);
     const imageName = await this.azureService.uploadFile(file, 'Piece');
     const imageUrl = this.azureService.getBlobUrl(imageName);
     createPieceDto.image = imageUrl;

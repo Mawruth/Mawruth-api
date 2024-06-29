@@ -63,7 +63,7 @@ export class UsersController {
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
-          fileType: 'jpeg',
+          fileType: /(png|jpeg|jpg)/,
         })
         .build(),
     )

@@ -9,7 +9,7 @@ import { PaginationUtils } from 'src/utils/pagination.utils';
 
 @Injectable()
 export class PiecesService {
-  constructor(private readonly prismaService: PrismaService) { }
+  constructor(private readonly prismaService: PrismaService) {}
 
   async createPiece(createPieceDto: CreatePieceDto): Promise<Pieces> {
     try {
@@ -23,6 +23,7 @@ export class PiecesService {
           arPath: createPieceDto.arPath,
           image: createPieceDto.image,
           isMasterpiece: createPieceDto.isMasterpiece,
+          collectionId: createPieceDto.collectionId,
         },
       });
       return res;
