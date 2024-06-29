@@ -60,13 +60,7 @@ export class UsersController {
     type: ImageUploadDto,
   })
   async uploadImage(
-    @UploadedFile(
-      new ParseFilePipeBuilder()
-        .addFileTypeValidator({
-          fileType: /(png|jpeg|jpg)/,
-        })
-        .build(),
-    )
+    @UploadedFile()
     file: Express.Multer.File,
     @Request() req,
   ) {
@@ -88,7 +82,7 @@ export class UsersController {
   async createUser(@Body() userData: CreateUserDto, @Request() req) {
     if (req.user.type === UserType.MUSEUMS_ADMIN) {
       userData.museumId = req.user.museum;
-    } 
+    }
 
     return await this.userService.createUser(userData);
   }
