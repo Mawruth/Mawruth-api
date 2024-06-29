@@ -18,12 +18,20 @@ export class FavoritesService {
         },
         include: {
           museum: {
-            select: {
-              id: true,
-              name: true,
+            include: {
               images: {
                 select: {
                   image_path: true,
+                },
+              },
+              categories: {
+                select: {
+                  category: {
+                    select: {
+                      id: true,
+                      name: true,
+                    },
+                  },
                 },
               },
             },
