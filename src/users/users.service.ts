@@ -48,7 +48,10 @@ export class UsersService {
       },
     });
 
-    if ((type == UserType.MUSEUMS_ADMIN || type == UserType.SUPPER_ADMIN) && userDto.museumId) {
+    if (
+      (type == UserType.MUSEUMS_ADMIN || type == UserType.SUPPER_ADMIN) &&
+      userDto.museumId
+    ) {
       await this.prisma.museumsAdmins.create({
         data: {
           userId: newUser.id,
@@ -172,7 +175,7 @@ export class UsersService {
 
   async updateImage(userId: number, imagePath: string) {
     try {
-      return await this.prisma.users.update({
+      const user = await this.prisma.users.update({
         where: {
           id: userId,
         },
@@ -187,6 +190,9 @@ export class UsersService {
           image: true,
         },
       });
+      return {
+        user: user,
+      };
     } catch (error) {
       handlePrismaError(error);
     }

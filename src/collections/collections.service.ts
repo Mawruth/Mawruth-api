@@ -49,6 +49,32 @@ export class CollectionsService {
     }
   }
 
+  async findById(collection_id: number, museumId: number) {
+    try {
+      console.log(museumId);
+      console.log(collection_id);
+
+      const res = await this.prisma.collection.findMany({
+        where: {
+          id: collection_id,
+          museumId: museumId,
+        },
+        select: {
+          Pieces: true,
+        },
+      });
+
+      const collection = res.map((item) => ({
+        ...item,
+        Pieces: item.Pieces.length > 0 ? item.Pieces : null,
+      }));
+
+      return collection;
+    } catch (error) {
+      handlePrismaError(error);
+    }
+  }
+
   async delete(museumId: number, id: number): Promise<Collection> {
     try {
       let res = await this.prisma.collection.delete({
