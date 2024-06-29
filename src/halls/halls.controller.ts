@@ -47,8 +47,9 @@ export class HallsController {
   @Post()
   @UseInterceptors(FileInterceptor('image'))
   @UseGuards(AuthGuard, UserTypeGuard)
-  @UserTypes('MUSEUMS_ADMIN')
+  @UserTypes('MUSEUMS_ADMIN', 'SUPPER_ADMIN')
   @ApiConsumes('multipart/form-data')
+  @ApiBearerAuth()
   async createHall(
     @Body() hallDto: CreateHallDto,
     @UploadedFile(
@@ -88,7 +89,7 @@ export class HallsController {
     ]),
   )
   @UseGuards(AuthGuard, UserTypeGuard)
-  @UserTypes('MUSEUMS_ADMIN')
+  @UserTypes('MUSEUMS_ADMIN', 'SUPPER_ADMIN')
   @ApiConsumes('multipart/form-data')
   @ApiBearerAuth()
   async uploadSound(
@@ -127,7 +128,8 @@ export class HallsController {
 
   @Delete('sound/:id')
   @UseGuards(AuthGuard, UserTypeGuard)
-  @UserTypes('MUSEUMS_ADMIN')
+  @UserTypes('MUSEUMS_ADMIN', 'SUPPER_ADMIN')
+  @ApiBearerAuth()
   async deleteHallAudio(@Param() hallId: HallIdDto) {
     await this.hallsService.deleteHallAudio(hallId.id);
     return {
@@ -188,7 +190,8 @@ export class HallsController {
 
   @Delete(':id')
   @UseGuards(AuthGuard, UserTypeGuard)
-  @UserTypes('MUSEUMS_ADMIN')
+  @UserTypes('MUSEUMS_ADMIN', 'SUPPER_ADMIN')
+  @ApiBearerAuth()
   async deleteHall(@Param() hallId: HallIdDto) {
     await this.hallsService.deleteHall(hallId.id);
     return {
