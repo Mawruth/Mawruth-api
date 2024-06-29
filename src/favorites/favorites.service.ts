@@ -100,13 +100,7 @@ export class FavoritesService {
           userId,
         },
         include: {
-          piece: {
-            select: {
-              id: true,
-              name: true,
-              image: true,
-            },
-          },
+          piece: true,
         },
       });
     } catch (error) {
