@@ -43,7 +43,7 @@ export class UsersController {
   constructor(
     private readonly userService: UsersService,
     private readonly azureService: AzureBlobService,
-  ) {}
+  ) { }
   @Get('me')
   @ApiOperation({
     summary: 'Get my profile',
@@ -88,7 +88,7 @@ export class UsersController {
   async createUser(@Body() userData: CreateUserDto, @Request() req) {
     if (req.user.type === UserType.MUSEUMS_ADMIN) {
       userData.museumId = req.user.museum;
-    } 
+    }
 
     return await this.userService.createUser(userData);
   }
@@ -138,7 +138,6 @@ export class UsersController {
   }
 
   @Put('me')
-  @UseGuards(AuthGuard)
   @ApiOperation({
     summary: 'Update logged user profile',
   })
