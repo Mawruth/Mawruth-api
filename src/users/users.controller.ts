@@ -138,6 +138,9 @@ export class UsersController {
     summary: 'Update logged user profile',
   })
   async updateMe(@Body() userData: UpdateUserDto, @Request() req) {
-    return await this.userService.updateUser(req.user.id, userData);
+    const user = await await this.userService.updateUser(req.user.id, userData);
+    return {
+      user: user,
+    };
   }
 }
