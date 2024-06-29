@@ -133,7 +133,6 @@ export class UsersController {
   }
 
   @Put('me')
-  @UseGuards(AuthGuard)
   @ApiOperation({
     summary: 'Update logged user profile',
   })
