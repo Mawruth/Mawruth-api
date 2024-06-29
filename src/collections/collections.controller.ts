@@ -35,7 +35,7 @@ import { Pagination } from 'src/shared/dto/pagination';
 import { MuseumIdDto } from 'src/museums/dto/museum-id.dto';
 
 @ApiTags('collections')
-@Controller('/museums/:museumId/collections')
+@Controller('/museums/:id/collections')
 export class CollectionsController {
   constructor(
     private readonly service: CollectionsService,
@@ -47,22 +47,13 @@ export class CollectionsController {
   @UserTypes('SUPPER_ADMIN')
   @ApiOperation({
     summary: 'Create new collection',
-    parameters: [
-      {
-        name: 'museumId',
-        in: 'path',
-        description: 'Museum id',
-        required: true,
-        schema: { type: 'number' },
-      },
-    ],
   })
   @ApiBearerAuth()
   @UseInterceptors(FileInterceptor('image'))
   @ApiConsumes('multipart/form-data')
   async create(
-    @Body() data: CreateCollectionDto,
     @Param() museumId: MuseumIdDto,
+    @Body() data: CreateCollectionDto,
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
@@ -77,7 +68,7 @@ export class CollectionsController {
     const imageName = await this.azureService.uploadFile(file, 'Collection');
     const imageUrl = this.azureService.getBlobUrl(imageName);
     data.image = imageUrl;
-    data.museumId = +museumId.id;
+    data.museumId = museumId.id;
     const collection = await this.service.create(data);
     return collection;
   }
@@ -96,14 +87,14 @@ export class CollectionsController {
     ],
   })
   async findAll(
-    @Param('museumId') museumId: number,
+    @Param() museumId: MuseumIdDto,
     @Query() pagination: Pagination,
   ): Promise<Collection[]> {
-    const collections = await this.service.findAll(museumId, pagination);
+    const collections = await this.service.findAll(museumId.id, pagination);
     return collections;
   }
 
-  @Delete(':id')
+  @Delete(':collection_id')
   @UseGuards(AuthGuard, UserTypeGuard)
   @ApiBearerAuth()
   @UserTypes('SUPPER_ADMIN')
@@ -118,7 +109,7 @@ export class CollectionsController {
         schema: { type: 'number' },
       },
       {
-        name: 'id',
+        name: 'collection_id',
         in: 'path',
         description: 'Collection id',
         required: true,
@@ -127,16 +118,16 @@ export class CollectionsController {
     ],
   })
   async delete(
-    @Param('museumId') museumId: number,
-    @Param('id') id: number,
+    @Param() museumId: MuseumIdDto,
+    @Param('collection_id') id: number,
   ): Promise<{ message: string }> {
-    await this.service.delete(museumId, id);
+    await this.service.delete(museumId.id, id);
     return {
       message: 'Collection deleted successfully',
     };
   }
 
-  @Put('update-name/:id')
+  @Put('update-name/:collection_id')
   @UseGuards(AuthGuard, UserTypeGuard)
   @ApiBearerAuth()
   @UserTypes('SUPPER_ADMIN')
@@ -151,7 +142,7 @@ export class CollectionsController {
         schema: { type: 'number' },
       },
       {
-        name: 'id',
+        name: 'collection_id',
         in: 'path',
         description: 'Collection id',
         required: true,
@@ -162,14 +153,14 @@ export class CollectionsController {
   @ApiBearerAuth()
   async updateCollectionName(
     @Body() name: UpdateCollectionNameDto,
-    @Param('museumId') museumId: number,
-    @Param('id') id: number,
+    @Param() museumId: MuseumIdDto,
+    @Param('collection_id') id: number,
   ): Promise<Collection> {
-    const res = await this.service.updateCollectionName(museumId, id, name);
+    const res = await this.service.updateCollectionName(museumId.id, id, name);
     return res;
   }
 
-  @Put('update-image/:id')
+  @Put('update-image/:collection_id')
   @UseGuards(AuthGuard, UserTypeGuard)
   @ApiBearerAuth()
   @UserTypes('SUPPER_ADMIN')
@@ -185,7 +176,7 @@ export class CollectionsController {
         schema: { type: 'number' },
       },
       {
-        name: 'id',
+        name: 'collection_id',
         in: 'path',
         description: 'Collection id',
         required: true,
@@ -195,8 +186,8 @@ export class CollectionsController {
   })
   async updateCollectionImage(
     @Body() image: UpdateCollectionImageDto,
-    @Param('museumId') museumId: number,
-    @Param('id') id: number,
+    @Param() museumId: MuseumIdDto,
+    @Param('collection_id') id: number,
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
@@ -211,7 +202,11 @@ export class CollectionsController {
     const imageName = await this.azureService.uploadFile(file, 'Collection');
     const imageUrl = this.azureService.getBlobUrl(imageName);
     image.image = imageUrl;
-    const res = await this.service.updateCollectionImage(museumId, id, image);
+    const res = await this.service.updateCollectionImage(
+      museumId.id,
+      id,
+      image,
+    );
     return res;
   }
 }
