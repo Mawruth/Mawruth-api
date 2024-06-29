@@ -60,19 +60,14 @@ export class UsersController {
     type: ImageUploadDto,
   })
   async uploadImage(
-    @UploadedFile(
-      new ParseFilePipeBuilder()
-        .addFileTypeValidator({
-          fileType: 'jpeg',
-        })
-        .build(),
-    )
+    @UploadedFile()
     file: Express.Multer.File,
     @Request() req,
   ) {
     const imageName = await this.azureService.uploadFile(file, 'User');
     const imageUrl = this.azureService.getBlobUrl(imageName);
-    return await this.userService.updateImage(req.user.id, imageUrl);
+    const user = await this.userService.updateImage(req.user.id, imageUrl);
+    return user;
   }
 
   @Put('remove-image')
@@ -142,6 +137,9 @@ export class UsersController {
     summary: 'Update logged user profile',
   })
   async updateMe(@Body() userData: UpdateUserDto, @Request() req) {
-    return await this.userService.updateUser(req.user.id, userData);
+    const user = await await this.userService.updateUser(req.user.id, userData);
+    return {
+      user: user,
+    };
   }
 }

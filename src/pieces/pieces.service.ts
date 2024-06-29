@@ -23,6 +23,7 @@ export class PiecesService {
           arPath: createPieceDto.arPath,
           image: createPieceDto.image,
           isMasterpiece: createPieceDto.isMasterpiece,
+          collectionId: createPieceDto.collectionId,
         },
       });
       return res;
@@ -37,6 +38,12 @@ export class PiecesService {
     try {
       const where: Prisma.PiecesWhereInput = {};
       where.museumId = museumId;
+      if (query.collection) {
+        where.collectionId = query.collection;
+      }
+      if (query.ar) {
+        where.arPath = { not: null };
+      }
       if (query.name) {
         where.OR = [
           {
