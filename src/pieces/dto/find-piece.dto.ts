@@ -34,4 +34,12 @@ export class FindPieceDto extends Pagination {
   @IsBoolean()
   @Type(() => Boolean)
   ar?: boolean;
+
+  @ApiProperty({
+    required: false,
+  })
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  hall?: number;
 }

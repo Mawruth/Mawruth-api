@@ -45,6 +45,9 @@ export class PiecesService {
         where.arPath = { not: { equals: '' } };
         where.arPath = { not: null };
       }
+      if (query.hall) {
+        where.hallId = query.hall
+      }
       if (query.name) {
         where.OR = [
           {
