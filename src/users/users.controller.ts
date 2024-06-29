@@ -66,7 +66,8 @@ export class UsersController {
   ) {
     const imageName = await this.azureService.uploadFile(file, 'User');
     const imageUrl = this.azureService.getBlobUrl(imageName);
-    return await this.userService.updateImage(req.user.id, imageUrl);
+    const user = await this.userService.updateImage(req.user.id, imageUrl);
+    return user;
   }
 
   @Put('remove-image')
