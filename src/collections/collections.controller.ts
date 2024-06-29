@@ -33,6 +33,7 @@ import {
 import { Collection } from '@prisma/client';
 import { Pagination } from 'src/shared/dto/pagination';
 import { MuseumIdDto } from 'src/museums/dto/museum-id.dto';
+import { CollectionIdDto } from './dto/collection-id.dto';
 
 @ApiTags('collections')
 @Controller('/museums/:id/collections')
@@ -92,6 +93,33 @@ export class CollectionsController {
   ): Promise<Collection[]> {
     const collections = await this.service.findAll(museumId.id, pagination);
     return collections;
+  }
+
+  @Get(':collection_id')
+  @ApiOperation({
+    summary: 'Get collection by id',
+    parameters: [
+      {
+        name: 'museumId',
+        in: 'path',
+        description: 'Museum id',
+        required: true,
+        schema: { type: 'number' },
+      },
+      {
+        name: 'collection_id',
+        in: 'path',
+        description: 'Collection id',
+        required: true,
+        schema: { type: 'number' },
+      },
+    ],
+  })
+  async findById(
+    @Param() museumId: MuseumIdDto,
+    @Param('collection_id') id: number,
+  ) {
+    return await this.service.findById(id, museumId.id);
   }
 
   @Delete(':collection_id')
