@@ -41,10 +41,7 @@ export class FavoritesController {
   @ApiBearerAuth()
   async addMuseum(@Param() museumId: MuseumIdDto, @Request() req) {
     const userId = req.user.id;
-    await this.favoritesService.addMuseum(userId, museumId.id);
-    return {
-      message: 'museum added to favorite list successfully ',
-    };
+    return await this.favoritesService.addMuseum(userId, museumId.id);
   }
 
   @Delete('museums/:id')
@@ -83,10 +80,7 @@ export class FavoritesController {
   @ApiBearerAuth()
   async addPiece(@Param() pieceId: PieceIdDto, @Request() req) {
     const userId = req.user.id;
-    await this.favoritesService.addPiece(userId, pieceId.id);
-    return {
-      message: 'piece added to favorite list successfully ',
-    };
+    return await this.favoritesService.addPiece(userId, pieceId.id);
   }
 
   @Delete('pieces/:id')

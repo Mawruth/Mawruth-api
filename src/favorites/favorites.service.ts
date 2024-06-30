@@ -58,10 +58,31 @@ export class FavoritesService {
         );
       }
 
-      await this.prisma.museumsFavorites.create({
+      return await this.prisma.museumsFavorites.create({
         data: {
           userId,
           museumId,
+        },
+        include: {
+          museum: {
+            include: {
+              images: {
+                select: {
+                  image_path: true,
+                },
+              },
+              categories: {
+                select: {
+                  category: {
+                    select: {
+                      id: true,
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       });
     } catch (error) {
@@ -123,10 +144,13 @@ export class FavoritesService {
         );
       }
 
-      await this.prisma.piecesFavorites.create({
+      return await this.prisma.piecesFavorites.create({
         data: {
           userId,
           pieceId,
+        },
+        include: {
+          piece: true,
         },
       });
     } catch (error) {
