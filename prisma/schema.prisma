@@ -80,8 +80,8 @@ model Pieces {
   arPath           String?
   soundPath        String?
   museum           Museums           @relation(fields: [museumId], references: [id], onDelete: Cascade)
-  hallId           Int
-  hall             Halls             @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  hallId           Int?
+  hall             Halls?            @relation(fields: [hallId], references: [id], onDelete: Cascade)
   image            String
   pieces_favorites PiecesFavorites[]
   collectionId     Int?
