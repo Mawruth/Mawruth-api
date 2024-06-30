@@ -103,13 +103,10 @@ export class CategoriesController {
     @Body() categoryDto: UpdateCategoryNameDto,
     @Param() categoryId: CategoryIdDto,
   ) {
-    await this.categoriesService.updateCategoryName(
-      categoryId.id,
-      categoryDto,
-    );
+    await this.categoriesService.updateCategoryName(categoryId.id, categoryDto);
     return {
-      "name":categoryDto.name
-    }
+      name: categoryDto.name,
+    };
   }
 
   @Put('update-image/:id')
@@ -126,7 +123,7 @@ export class CategoriesController {
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
-          fileType: 'png',
+          fileType: /(png|jpeg|jpg)/,
         })
         .build({
           errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
@@ -142,8 +139,8 @@ export class CategoriesController {
       categoryDto,
     );
     return {
-      "imageUrl": imageUrl
-    } 
+      imageUrl: imageUrl,
+    };
   }
 
   @Delete('remove-image/:id')
@@ -154,12 +151,14 @@ export class CategoriesController {
     summary: 'Delete category image by id',
   })
   async deleteCategoryImage(@Param() categoryId: CategoryIdDto) {
-    const categoryDto = new UpdateCategoryImageDto
-    categoryDto.image = null
-    await this.categoriesService.updateCategoryImage(categoryId.id,categoryDto);
+    const categoryDto = new UpdateCategoryImageDto();
+    categoryDto.image = null;
+    await this.categoriesService.updateCategoryImage(
+      categoryId.id,
+      categoryDto,
+    );
     return {
       message: 'Category image deleted successfully',
     };
   }
-
 }
