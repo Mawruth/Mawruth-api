@@ -74,8 +74,8 @@ model Pieces {
   id               Int               @id @default(autoincrement())
   name             String
   description      String?
-  isMasterpiece    Boolean
-  age              String
+  isMasterpiece    Boolean  @default(false)
+  age              String?
   museumId         Int
   arPath           String?
   soundPath        String?
