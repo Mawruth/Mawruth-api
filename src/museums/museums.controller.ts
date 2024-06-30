@@ -12,6 +12,7 @@ import {
   ParseFilePipeBuilder,
   HttpStatus,
   UploadedFiles,
+  HttpException,
 } from '@nestjs/common';
 import { CreateMuseumDto } from './dto/create-museum.dto';
 import {
@@ -29,7 +30,10 @@ import { FindMuseumQueryDto } from './dto/find-museum-query.dto';
 import { MuseumIdDto } from './dto/museum-id.dto';
 import { AzureBlobService } from 'src/services/azure-blob.service';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { DeleteMuseumImagesDto, UploadMuseumImagesDto } from './dto/upload-images.dto';
+import {
+  DeleteMuseumImagesDto,
+  UploadMuseumImagesDto,
+} from './dto/upload-images.dto';
 
 @ApiTags('museums')
 @Controller('museums')
@@ -121,6 +125,12 @@ export class MuseumsController {
   })
   @ApiBearerAuth()
   async deleteMuseum(@Param() museumId: MuseumIdDto) {
+    if (museumId.id == 49) {
+      throw new HttpException(
+        `sorry, you cannot delete this museum`,
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
     await this.service.deleteMuseum(museumId.id);
     return {
       message: 'museum deleted successfully',
