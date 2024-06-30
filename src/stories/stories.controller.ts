@@ -40,7 +40,7 @@ export class StoriesController {
 
   @ApiBearerAuth()
   @UseGuards(AuthGuard, UserTypeGuard)
-  @UserTypes('SUPPER_ADMIN')
+  @UserTypes('SUPPER_ADMIN', 'MUSEUMS_ADMIN')
   @ApiOperation({
     summary: 'Create new story',
     parameters: [
@@ -148,7 +148,7 @@ export class StoriesController {
   @UseInterceptors(FileInterceptor('image'))
   @ApiBearerAuth()
   @UseGuards(AuthGuard, UserTypeGuard)
-  @UserTypes('SUPPER_ADMIN')
+  @UserTypes('SUPPER_ADMIN', 'MUSEUMS_ADMIN')
   @Patch(':storyId')
   async update(
     @Param('id') museumId: number,
@@ -194,7 +194,7 @@ export class StoriesController {
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard, UserTypeGuard)
-  @UserTypes('SUPPER_ADMIN')
+  @UserTypes('SUPPER_ADMIN', 'MUSEUMS_ADMIN')
   @Delete(':storyId')
   remove(
     @Param('id') museumId: number,
