@@ -81,11 +81,11 @@ model Pieces {
   soundPath        String?
   museum           Museums           @relation(fields: [museumId], references: [id], onDelete: Cascade)
   hallId           Int?
-  hall             Halls?            @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  hall             Halls?            @relation(fields: [hallId], references: [id])
   image            String
   pieces_favorites PiecesFavorites[]
   collectionId     Int?
-  collection       Collection?       @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  collection       Collection?       @relation(fields: [collectionId], references: [id])
 
   @@map("pieces")
 }
