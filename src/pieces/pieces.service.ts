@@ -6,24 +6,36 @@ import { Pieces, Prisma } from '@prisma/client';
 import { handlePrismaError } from 'src/utils/prisma-error.util';
 import { FindPieceDto } from './dto/find-piece.dto';
 import { PaginationUtils } from 'src/utils/pagination.utils';
+import { CollectionIdDto } from 'src/collections/dto/collection-id.dto';
+import { of } from 'rxjs';
 
 @Injectable()
 export class PiecesService {
-  constructor(private readonly prismaService: PrismaService) { }
+  constructor(private readonly prismaService: PrismaService) {}
 
   async createPiece(createPieceDto: CreatePieceDto): Promise<Pieces> {
     try {
+      let dataPiece = {
+        name: createPieceDto.name,
+        description: createPieceDto.description,
+        age: createPieceDto.age,
+        museumId: createPieceDto.museumId,
+        arPath: createPieceDto.arPath,
+        image: createPieceDto.image,
+        isMasterpiece: createPieceDto.isMasterpiece,
+      };
+
+      if (createPieceDto.collectionId) {
+        dataPiece['collectionId'] = createPieceDto.collectionId;
+      }
+
+      if (createPieceDto.hallId) {
+        dataPiece['hallId'] = createPieceDto.hallId;
+      }
+
       const res = await this.prismaService.pieces.create({
         data: {
-          name: createPieceDto.name,
-          description: createPieceDto.description,
-          age: createPieceDto.age,
-          hallId: createPieceDto.hallId,
-          museumId: createPieceDto.museumId,
-          arPath: createPieceDto.arPath,
-          image: createPieceDto.image,
-          isMasterpiece: createPieceDto.isMasterpiece,
-          collectionId: createPieceDto.collectionId,
+          ...dataPiece,
         },
       });
       return res;
@@ -46,7 +58,7 @@ export class PiecesService {
         where.arPath = { not: null };
       }
       if (query.hall) {
-        where.hallId = query.hall
+        where.hallId = query.hall;
       }
       if (query.name) {
         where.OR = [
