@@ -12,7 +12,7 @@ export class FavoritesService {
 
   async getMuseum(userId: number) {
     try {
-      return await this.prisma.museumsFavorites.findMany({
+      const res = await this.prisma.museumsFavorites.findMany({
         where: {
           userId,
         },
@@ -38,6 +38,18 @@ export class FavoritesService {
           },
         },
       });
+      const museums = res.map((item) => ({
+        ...item,
+        museum: {
+          ...item.museum,
+          images: item.museum.images.length > 0 ? item.museum.images : null,
+          categories:
+            item.museum.categories.length > 0 ? item.museum.categories : null,
+          isFavorite: true,
+        },
+      }));
+
+      return museums;
     } catch (error) {
       handlePrismaError(error);
     }
@@ -58,7 +70,7 @@ export class FavoritesService {
         );
       }
 
-      return await this.prisma.museumsFavorites.create({
+      const res = await this.prisma.museumsFavorites.create({
         data: {
           userId,
           museumId,
@@ -85,6 +97,15 @@ export class FavoritesService {
           },
         },
       });
+
+      const museumFav = {
+        ...res,
+        museum: {
+          ...res.museum,
+          isFavorite: true,
+        },
+      };
+      return museumFav;
     } catch (error) {
       handlePrismaError(error);
     }
@@ -116,7 +137,7 @@ export class FavoritesService {
 
   async getPiece(userId: number) {
     try {
-      return await this.prisma.piecesFavorites.findMany({
+      const res = await this.prisma.piecesFavorites.findMany({
         where: {
           userId,
         },
@@ -124,6 +145,16 @@ export class FavoritesService {
           piece: true,
         },
       });
+
+      const pieces = res.map((item) => ({
+        ...item,
+        piece: {
+          ...item.piece,
+          isFavorite: true,
+        },
+      }));
+
+      return pieces;
     } catch (error) {
       handlePrismaError(error);
     }
@@ -144,7 +175,7 @@ export class FavoritesService {
         );
       }
 
-      return await this.prisma.piecesFavorites.create({
+      const res = await this.prisma.piecesFavorites.create({
         data: {
           userId,
           pieceId,
@@ -153,6 +184,15 @@ export class FavoritesService {
           piece: true,
         },
       });
+
+      const pieceFav = {
+        ...res,
+        piece: {
+          ...res.piece,
+          isFavorite: true,
+        },
+      };
+      return pieceFav;
     } catch (error) {
       handlePrismaError(error);
     }

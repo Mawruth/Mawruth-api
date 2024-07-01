@@ -7,7 +7,6 @@ import { handlePrismaError } from 'src/utils/prisma-error.util';
 import { FindPieceDto } from './dto/find-piece.dto';
 import { PaginationUtils } from 'src/utils/pagination.utils';
 import { CollectionIdDto } from 'src/collections/dto/collection-id.dto';
-import { of } from 'rxjs';
 
 @Injectable()
 export class PiecesService {
